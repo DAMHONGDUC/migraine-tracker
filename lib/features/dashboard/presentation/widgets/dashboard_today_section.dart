@@ -15,7 +15,6 @@ import '../../../health/domain/entities/sleep_summary.dart';
 import '../../../health/domain/entities/step_summary.dart';
 import '../../../health/providers.dart';
 import '../../../insights/domain/enums/insights_tab.dart';
-import '../../../premium/providers.dart';
 import '../../../weather/domain/entities/weather_report.dart';
 import '../../../weather/providers.dart';
 
@@ -55,11 +54,9 @@ class DashboardTodaySection extends ConsumerWidget {
     final StepSummary? steps = ref.watch(stepSummaryProvider).value;
     final SleepSummary? sleep = ref.watch(sleepSummaryProvider).value;
     final WeatherConditions? now = weather?.current;
-    final bool hasPremium = ref.watch(hasPremiumProvider);
 
     return <_Reading>[
-      // The one premium row: the pressure reading is what is sold, and a free user tapping through would land on a card of pitches.
-      if (now?.pressureHpa case final double value when hasPremium)
+      if (now?.pressureHpa case final double value)
         _Reading(
           icon: AppIconConstant.pressure,
           label: l10n.insightsPressureTitle,

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/core/widgets/alert_summary_tag.dart';
+import 'package:migraine_tracker/core/widgets/premium_gate.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -27,28 +28,6 @@ Attack seededAttack(int i, {double? pressureDelta}) {
 }
 
 void main() {
-  testWidgets('a locked pressure card is one pitch, not three', (tester) async {
-    await pumpApp(tester);
-    await openPressureInsight(tester);
-
-    // The whole card is the purchase now, so the forecast, the correlation and the alert share ONE offer.
-    expect(
-      find.text(
-        'See the pressure forecast, how closely your attacks track it, and '
-        'get alerted before the next drop.',
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.text(
-        'Log 15 more attacks with weather data to unlock this insight.',
-      ),
-      findsNothing,
-    );
-
-    await finishTest(tester);
-  });
-
   testWidgets(
     'with 15+ attacks a premium user sees the drop-share hero number',
     (tester) async {
@@ -161,7 +140,7 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('a free user gets no alert controls, not disabled ones', (
+  testWidgets('a free user gets the locked alert row, not a disabled control', (
     tester,
   ) async {
     final app = await pumpApp(tester);
@@ -170,8 +149,9 @@ void main() {
 
     await openPressureInsight(tester);
 
-    // Owner's call, and it reversed the first version.
-    expect(find.text('Pressure-drop alerts'), findsNothing);
+    // The row says what the alert is and wears the badge; the control is never built.
+    expect(find.text('Pressure-drop alerts'), findsOneWidget);
+    expect(find.byType(PremiumBadge), findsOneWidget);
     expect(find.byType(AlertSummaryTag), findsNothing);
 
     await finishTest(tester);

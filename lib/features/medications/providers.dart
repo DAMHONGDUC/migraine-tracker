@@ -1,10 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../core/constants/premium_limit_constant.dart';
 import '../../core/db/database_provider.dart';
 import '../attacks/domain/entities/attack.dart';
 import '../attacks/providers.dart';
-import '../premium/providers.dart';
 import 'data/repositories/drift_medication_reminder_repository.dart';
 import 'data/repositories/drift_medication_repository.dart';
 import 'domain/entities/medication.dart';
@@ -154,44 +152,6 @@ final remindersForMedicationProvider =
           .where((view) => view.reminder.medicationId == medicationId)
           .toList();
     });
-
-/// Whether another medication may be added.
-final canAddMedicationProvider = Provider<bool>((ref) {
-  if (ref.watch(hasPremiumProvider)) return true;
-
-  final List<Medication> medications =
-      ref.watch(medicationsStreamProvider).value ?? const <Medication>[];
-
-  return medications.length < PremiumLimitConstant.medications;
-});
-
-/// How many of the free plan's medications are spent, for [FreeLimitProgress].
-final medicationsUsedProvider = Provider<int?>((ref) {
-  if (ref.watch(hasPremiumProvider)) return null;
-
-  return (ref.watch(medicationsStreamProvider).value ?? const <Medication>[])
-      .length;
-});
-
-/// Whether another reminder may be created.
-final canAddReminderProvider = Provider<bool>((ref) {
-  if (ref.watch(hasPremiumProvider)) return true;
-
-  final List<MedicationReminderView> all =
-      ref.watch(medicationRemindersStreamProvider).value ??
-      const <MedicationReminderView>[];
-
-  return all.length < PremiumLimitConstant.reminders;
-});
-
-/// How many of the free plan's reminders are spent, for [FreeLimitProgress].
-final remindersUsedProvider = Provider<int?>((ref) {
-  if (ref.watch(hasPremiumProvider)) return null;
-
-  return (ref.watch(medicationRemindersStreamProvider).value ??
-          const <MedicationReminderView>[])
-      .length;
-});
 
 /// Orchestrates reminders (see [RemindersController]).
 final remindersControllerProvider = Provider<RemindersController>(

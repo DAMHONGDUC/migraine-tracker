@@ -4,7 +4,6 @@ import 'package:system_design/index.dart';
 
 import '../../../features/alerts/domain/enums/alert_registration_error.dart';
 import '../../../features/alerts/providers.dart';
-import '../../../features/premium/providers.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
 import '../../theme/app_icon_constant.dart';
@@ -33,9 +32,10 @@ class AlertsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
-    // Ahead of the settings read: without premium there is no control to fill in, so the alert state is none of this branch's business.
-    if (!ref.watch(hasPremiumProvider)) {
+    // Ahead of the settings read: without access there is no control to fill in, so the alert state is none of this branch's business.
+    if (!ref.watch(hasAlertAccessProvider)) {
       return PremiumTileGate(
+        access: hasAlertAccessProvider,
         icon: AppIconConstant.reminderActive,
         title: l10n.alertsToggleTitle,
         // Never built for a free user — that is the gate, not the styling.

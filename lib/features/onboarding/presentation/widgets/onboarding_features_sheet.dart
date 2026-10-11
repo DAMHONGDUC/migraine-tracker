@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:system_design/index.dart';
 
-import '../../../../core/constants/premium_limit_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_feature_list.dart';
@@ -22,11 +21,7 @@ class OnboardingFeaturesSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            l10n.appFeaturesBody(
-              PremiumLimitConstant.freeHistoryWindow.inDays,
-              PremiumLimitConstant.medications,
-              PremiumLimitConstant.reminders,
-            ),
+            l10n.appFeaturesBody,
             style: AppTextStyle.bodyLarge.secondary,
           ),
           SizedBox(height: SdSpacingConstant.h24),

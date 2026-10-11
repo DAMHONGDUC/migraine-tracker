@@ -7,7 +7,6 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/free_history_banner.dart';
 import '../../../../../core/widgets/weather/current_weather_card.dart';
 import '../../../../attacks/presentation/widgets/attack_in_progress_card.dart';
 import '../../../../attacks/providers.dart';
@@ -35,8 +34,6 @@ class DashboardScreen extends ConsumerWidget {
     final l10n = context.l10n;
     // Null until there is an account with a name on it, which is also every anonymous session.
     final String? firstName = ref.watch(firstNameProvider);
-    // True only where the 90-day window actually hides something (see FreeHistoryBanner).
-    final bool hasHiddenHistory = ref.watch(hasHiddenHistoryProvider);
 
     // Only sections that should show; gaps inserted below avoid a double gap.
     final sections = <Widget>[
@@ -44,11 +41,9 @@ class DashboardScreen extends ConsumerWidget {
       if (ref.watch(attackInProgressProvider) != null)
         const AttackInProgressCard(),
       const DashboardLogButton(),
-      // Directly under the log button, and only where the 90-day window hides something: it says what Premium would open, not what the free plan refuses.
-      if (hasHiddenHistory) const FreeHistoryBanner(),
       // The pressure outlook, directly under the log button (owner's call, 2026-09-30 redesign): the app's promise, read before anything is asked of the user.
       const CurrentWeatherCard(),
-      // Its own compact card under the weather (owner's call, 2026-10-06), premium only and absent rather than locked — the banner is this screen's one premium door.
+      // Its own compact card under the weather (owner's call, 2026-10-06), absent until there is a forecast to score.
       if (RiskScoreCard.isShown(ref)) const RiskScoreCard(),
       // Under the outlook and above the shortcuts: the one thing the app asks for on a day that did not hurt.
       const DailyCheckInCard(),
@@ -58,9 +53,7 @@ class DashboardScreen extends ConsumerWidget {
       // Unconditional, owner's call: hidden until the first attack, it left a new install with a log button, a grid of links and nothing between.
       const DashboardSummaryGroup(),
       // After the readings, owner's call (2026-09-30 redesign): the top of the screen is logging and the pressure outlook, and an offer above them pushed both down on every open.
-      // Never beside the history banner: that one is this same pitch with a reason attached, and two premium banners on one screen is how both stop being read.
-      if (!ref.watch(hasPremiumProvider) && !hasHiddenHistory)
-        const PremiumBanner(),
+      if (!ref.watch(hasPremiumProvider)) const PremiumBanner(),
       const DashboardExploreSection(),
     ];
 

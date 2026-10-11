@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
-import '../../../../core/constants/premium_limit_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_icon_size.dart';
@@ -34,21 +32,6 @@ class MedicationGrid extends ConsumerWidget {
   final String query;
 
   Future<void> _add(BuildContext context, WidgetRef ref) async {
-    // The one gate inside the sacred flow, by the owner's call.
-    if (!ref.read(canAddMedicationProvider)) {
-      await NavigationUtils.toPaywallFromLimit(
-        context,
-        ref,
-        title: context.l10n.medicationLimitTitle(
-          PremiumLimitConstant.medications,
-        ),
-        body: context.l10n.medicationLimitBody(
-          PremiumLimitConstant.medications,
-        ),
-      );
-      return;
-    }
-
     final String? name = await const MedicationNameDialog().show(context);
 
     if (name == null) return;

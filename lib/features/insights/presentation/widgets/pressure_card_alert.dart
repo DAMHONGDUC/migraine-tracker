@@ -24,6 +24,26 @@ class _AlertControls extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
 
+    // The one paid part of the tab. Ahead of the settings read: without access there is no control to fill in, only the row saying what the alert would do.
+    if (!ref.watch(hasAlertAccessProvider)) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _AlertRow(
+            icon: AppIconConstant.reminderActive,
+            title: l10n.alertsToggleTitle,
+            onTap: () => NavigationUtils.toPaywall(context, ref),
+            trailing: const PremiumBadge(),
+          ),
+          SizedBox(height: SdSpacingConstant.h12),
+          Text(
+            l10n.weatherAlertLockedBody,
+            style: AppTextStyle.bodySmall.secondary,
+          ),
+        ],
+      );
+    }
+
     ref.listen(alertsControllerProvider, (_, AsyncValue<AlertsSettings> next) {
       if (next.hasError && !next.isLoading) {
         SdSnackBarUtilsV2.error(context, _errorMessage(l10n, next.error));

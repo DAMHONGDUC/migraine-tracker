@@ -11,9 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/utils/chart_axis_utils.dart';
 import '../../../../core/utils/date_time_utils.dart';
-import '../../../../core/widgets/premium_gate.dart';
 import '../../../../core/widgets/weather/weather_attribution.dart';
-import '../../../premium/providers.dart';
 import '../../../weather/domain/entities/pressure_forecast.dart';
 import '../../../weather/providers.dart';
 
@@ -25,11 +23,6 @@ class PressureForecastBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Cardless: this body is always drawn inside someone else's card, so a `PremiumGate` here would put a card inside a card.
-    if (!ref.watch(hasPremiumProvider)) {
-      return PremiumUnlockPrompt(message: context.l10n.premiumLockedForecast);
-    }
-
     final forecast = ref.watch(pressureForecastProvider);
 
     return switch (forecast) {

@@ -161,7 +161,7 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('a free user gets the reading but not the correlation', (
+    testWidgets('a free user gets the reading and the correlation', (
       tester,
     ) async {
       final PumpedApp app = await pumpApp(
@@ -173,14 +173,8 @@ void main() {
       );
       await openSleepInsight(tester);
 
-      // The analysis half is what premium buys, so a free user gets the pitch and nothing is computed behind it.
-      expect(
-        find.text(
-          'Unlock to see whether your attacks follow the nights you sleep '
-          'least.',
-        ),
-        findsOneWidget,
-      );
+      // The analysis is free (`docs/PREMIUM_RULES.md`): the card is built, not pitched.
+      expect(find.text('Sleep & attacks'), findsOneWidget);
       // The reading itself is free (`docs/PREMIUM_RULES.md`): it answers "did connecting Apple Health work".
       expect(app.health.sleepReads, greaterThan(0));
 

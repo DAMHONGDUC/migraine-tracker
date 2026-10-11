@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
@@ -15,7 +16,6 @@ import '../../../alerts/domain/entities/alerts_settings.dart';
 import '../../../alerts/domain/enums/alert_registration_error.dart';
 import '../../../alerts/providers.dart';
 import '../../../auth/providers.dart';
-import '../../../premium/providers.dart';
 import '../../domain/entities/correlation_result.dart';
 import 'correlation_body.dart';
 import 'insight_card.dart';
@@ -39,15 +39,6 @@ class PressureCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ONE pitch for the whole tab when locked, not one per card — which is why the locked branch stays a single titled card carrying the badge.
-    if (!ref.watch(hasPremiumProvider)) {
-      return InsightCard(
-        title: context.l10n.insightsPressureTitle,
-        trailing: const PremiumBadge(),
-        child: PremiumUnlockPrompt(message: context.l10n.premiumLockedPressure),
-      );
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[

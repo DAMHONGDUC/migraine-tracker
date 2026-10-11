@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:system_design/common.dart';
 
-import '../../../../core/constants/premium_limit_constant.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/exertion_level.dart';
 import '../../../attacks/domain/enums/head_region.dart';
@@ -68,15 +67,13 @@ class DevSeedService {
   static const int notificationCount = 5;
   static const int pressureAlertCount = 1;
 
-  /// Attacks written deliberately BEHIND the free plan's readable window, so a
-  /// dev build always has History's blurred rows on it (owner's rule,
-  /// 2026-09-21).
+  /// Attacks written deliberately older than [_oldHistoryDays], so a dev build
+  /// always has a history reaching past the last three months.
   ///
   /// **Forced, not rolled, for the reason the weatherless attack is.** The
-  /// scatter window is 2200h — a hair over ninety days — so a run landed a
-  /// locked row perhaps one time in ten, and a state that appears one run in
-  /// ten is a state nobody reviews. Two rather than one: one blurred row reads
-  /// as a glitch on that row, two read as a rule.
+  /// scatter window is 2200h — a hair over ninety days — so a run landed an
+  /// older row perhaps one time in ten, and a state that appears one run in
+  /// ten is a state nobody reviews.
   ///
   /// **On top of [attackCount], not carved out of it.** The readable list still
   /// holds the owner's five, exactly as the tombstone surplus is written on top
@@ -87,7 +84,10 @@ class DevSeedService {
   /// and [lockedAttackCount] behind it. What a test counts.
   static const int seededAttackCount = attackCount + lockedAttackCount;
 
-  /// How far behind the window a locked attack lands, in days. Far enough that
+  /// Where the older history starts, in days back.
+  static const int _oldHistoryDays = 90;
+
+  /// How far behind [_oldHistoryDays] an older attack lands, in days. Far enough that
   /// no rounding of a day or a timezone could put it back inside; near enough
   /// that the row still reads as the recent past rather than as another year.
   static const int _lockedDaysPastWindow = 5;
@@ -194,9 +194,8 @@ class DevSeedService {
       await _attacks.insert(attack);
     }
 
-    // The whole record, locked rows included: an export IS the whole record,
-    // and the pressure readings have to reach the oldest attack so buying
-    // premium reveals an attack with its weather rather than a gap.
+    // The whole record, older rows included: an export IS the whole record,
+    // and the pressure readings have to reach the oldest attack.
     await _seedExports(random, allAttacks, medications, now);
     await _seedDailyPressure(random, allAttacks, now);
     await _seedDailyLogs(random, allAttacks, now);
@@ -426,17 +425,14 @@ class DevSeedService {
     ];
   }
 
-  /// The locked half: [lockedAttackCount] attacks behind the free plan's
-  /// window, on distinct days so two blurred rows never share one.
-  ///
-  /// None of them is the offline one — that shape belongs on a row a free user
-  /// can actually read, and a blurred row says nothing about its weather.
+  /// The older half: [lockedAttackCount] attacks past [_oldHistoryDays], on
+  /// distinct days so two rows never share one.
   List<Attack> _buildLockedAttacks(
     Random random,
     DateTime now,
     List<Medication> medications,
   ) {
-    final int windowDays = PremiumLimitConstant.freeHistoryWindow.inDays;
+    const int windowDays = _oldHistoryDays;
     final Set<int> daysBack = <int>{};
 
     while (daysBack.length < lockedAttackCount) {

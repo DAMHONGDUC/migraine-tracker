@@ -11,23 +11,16 @@ import '../../../../core/widgets/dashboard_chevron.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../insights/domain/entities/risk_score.dart';
 import '../../../insights/providers.dart';
-import '../../../premium/providers.dart';
 import 'risk_band_style.dart';
 
 part 'risk_score_card_mini_week.dart';
 
 /// How likely the next seven days are to hurt, at a glance: one line and a mini week. The whole card opens `RiskForecastScreen`, where the working is.
-///
-/// **Premium users only, and absent rather than locked for everyone else.** The
-/// dashboard has one premium door — the banner — and a second locked card on
-/// the same screen is two pitches for one purchase (see
-/// `lib/features/dashboard/CLAUDE.md`).
 class RiskScoreCard extends ConsumerWidget {
   const RiskScoreCard({super.key});
 
-  /// Whether this card has anything to draw: premium, and a forecast with a today in it. The screen asks before placing it, so a card that drew nothing leaves no gap.
+  /// Whether this card has anything to draw: a forecast with a today in it. The screen asks before placing it, so a card that drew nothing leaves no gap.
   static bool isShown(WidgetRef ref) =>
-      ref.watch(hasPremiumProvider) &&
       ref.watch(riskForecastProvider).value?.today != null;
 
   void _open(BuildContext context, DailyRisk today) {

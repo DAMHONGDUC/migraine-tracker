@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../features/alerts/providers.dart';
 import '../../features/attacks/providers.dart';
 import '../../features/auth/providers.dart';
 import '../../features/insights/domain/enums/insights_tab.dart';
@@ -11,7 +12,6 @@ import '../../features/insights/providers.dart';
 import '../../features/premium/providers.dart';
 import '../analytics/app_analytics.dart';
 import '../widgets/alert_threshold_sheet.dart';
-import '../widgets/record_limit_dialog.dart';
 import 'app_router.dart';
 
 /// Navigation moves with a rule attached — an order of screens, or a condition on where the user lands. A plain push stays at its call site.
@@ -25,9 +25,8 @@ final class NavigationUtils {
 
   /// The 3-tap log flow, with the one thing that must happen before it.
   ///
-  /// There is no gate here any more: logging an attack is never refused
-  /// (`docs/PREMIUM_RULES.md`), and what the free plan limits is how far back
-  /// the record can be READ. The reset stays — a flow reopened on the last
+  /// There is no gate here: logging an attack is never refused
+  /// (`docs/PREMIUM_RULES.md`). The reset stays — a flow reopened on the last
   /// attack's answers would record them again.
   static Future<void> toLog(BuildContext context, WidgetRef ref) async {
     ref.read(logControllerProvider.notifier).reset();
@@ -63,16 +62,17 @@ final class NavigationUtils {
   /// the door was named after. The sheet over the tab is the same destination
   /// with neither step.
   ///
-  /// **Only with premium**, and the check lives here rather than at each door:
-  /// without it the card renders a pitch and no controls, so a sheet over it
-  /// would be editing something the user cannot have.
+  /// **Only with alert access** (premium, or the owner's `app_config` switch),
+  /// and the check lives here rather than at each door: without it the card
+  /// renders a pitch and no controls, so a sheet over it would be editing
+  /// something the user cannot have.
   static Future<void> toPressureAlert(
     BuildContext context,
     WidgetRef ref,
   ) async {
     toPressure(context, ref);
 
-    if (!ref.read(hasPremiumProvider) || !context.mounted) return;
+    if (!ref.read(hasAlertAccessProvider) || !context.mounted) return;
 
     // The server never pushes to an anonymous session, so registration throws
     // `accountRequired` — and a paying user meeting that error after flipping
@@ -129,23 +129,6 @@ final class NavigationUtils {
       AppRoutes.notificationIdParam: notificationId,
     },
   );
-
-  /// A record limit was reached: name it, and open the paywall only if the user asks for it.
-  static Future<void> toPaywallFromLimit(
-    BuildContext context,
-    WidgetRef ref, {
-    required String title,
-    required String body,
-  }) async {
-    final bool? unlock = await RecordLimitDialog(
-      title: title,
-      body: body,
-    ).show(context);
-
-    if (unlock != true || !context.mounted) return;
-
-    await toPaywall(context, ref);
-  }
 
   /// Every locked surface goes here, signed in or not — one door, so the paywall is what a gate opens and nothing else.
   static Future<void> toPaywall(BuildContext context, WidgetRef ref) async {

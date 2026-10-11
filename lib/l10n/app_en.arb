@@ -49,20 +49,9 @@
   "@appFeaturesTitle": {
     "description": "Onboarding feature-list sheet headline"
   },
-  "appFeaturesBody": "Log as many attacks as you like. The free plan reads the last {days} days of them, and keeps {medications} medications and {reminders} reminders. The analysis that explains your attacks is Premium.",
+  "appFeaturesBody": "Everything here is free: unlimited logging, your whole history, every chart and analysis, medications and reminders. Premium adds pressure-drop alerts and exporting your data.",
   "@appFeaturesBody": {
-    "description": "Summary of the free plan",
-    "placeholders": {
-      "days": {
-        "type": "int"
-      },
-      "medications": {
-        "type": "int"
-      },
-      "reminders": {
-        "type": "int"
-      }
-    }
+    "description": "Summary of the offer: what is free, and the two things Premium adds"
   },
   "appFeaturesFree": "Free forever",
   "@appFeaturesFree": {
@@ -92,14 +81,9 @@
   "@appFeatureRemindersTitle": {
     "description": "Free feature: medication reminders"
   },
-  "appFeatureRemindersBody": "A daily nudge at the time you choose, so a dose never slips. Up to {count} reminders on the free plan.",
+  "appFeatureRemindersBody": "A daily nudge at the time you choose, so a dose never slips.",
   "@appFeatureRemindersBody": {
-    "description": "Free feature: medication reminders, detail. The count is the free-plan reminder limit and comes from PremiumLimitConstant, never typed into the string",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+    "description": "Free feature: medication reminders, detail"
   },
   "appFeatureExportTitle": "Export your data",
   "@appFeatureExportTitle": {
@@ -1422,65 +1406,9 @@
   "@premiumUnlock": {
     "description": "CTA on a locked premium surface, opens the paywall"
   },
-  "premiumLockedForecast": "See the pressure a week ahead, so you can plan around it.",
-  "@premiumLockedForecast": {
-    "description": "Locked-state copy on the forecast card"
-  },
-  "premiumLockedCorrelation": "Unlock to see how much of your pain follows the weather.",
-  "@premiumLockedCorrelation": {
-    "description": "Teaser copy over the blurred correlation percentage"
-  },
-  "premiumLockedSleep": "Unlock to see whether your attacks follow the nights you sleep least.",
-  "@premiumLockedSleep": {
-    "description": "Locked-state copy on the sleep correlation card and the Apple Health setting"
-  },
-  "premiumLockedSteps": "Unlock to see whether your attacks follow your least active days.",
-  "@premiumLockedSteps": {
-    "description": "Locked-state copy on the step correlation card"
-  },
   "dashboardPremiumBannerTitle": "Unlock Premium",
   "@dashboardPremiumBannerTitle": {
     "description": "Title of the short premium banner at the top of the dashboard"
-  },
-  "medicationLimitTitle": "{count, plural, other{{count} medications on the free plan}}",
-  "@medicationLimitTitle": {
-    "description": "Dialog title when a free user tries to add one medication past the limit",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "medicationLimitBody": "{count, plural, other{The free plan includes {count} medications.}} Unlock Premium to add as many as you need.",
-  "@medicationLimitBody": {
-    "description": "Dialog body explaining the free plan's medication limit",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reminderLimitTitle": "{count, plural, =1{One reminder on the free plan} other{{count} reminders on the free plan}}",
-  "@reminderLimitTitle": {
-    "description": "Dialog title shown when a free user tries to add one reminder past the limit",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reminderLimitBody": "{count, plural, =1{The free plan includes one reminder across all your medications.} other{The free plan includes {count} reminders across all your medications.}} Unlock Premium to add as many as you need.",
-  "@reminderLimitBody": {
-    "description": "Dialog body explaining the free plan's reminder limit",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "premiumLockedCharts": "Unlock to see every chart of your attack history.",
-  "@premiumLockedCharts": {
-    "description": "Accessibility label on a locked chart card in History, where only the unlock button is drawn"
   },
   "notificationsTitle": "Notifications",
   "@notificationsTitle": {
@@ -1561,10 +1489,6 @@
   "@paywallHeadline": {
     "description": "Paywall headline"
   },
-  "paywallBenefitUnlimited": "Unlimited attacks, medications and reminders",
-  "@paywallBenefitUnlimited": {
-    "description": "Paywall benefit row for lifting the free record limits"
-  },
   "paywallBenefitAlerts": "Pressure-drop alerts",
   "@paywallBenefitAlerts": {
     "description": "Paywall benefit: push alerts"
@@ -1573,17 +1497,9 @@
   "@paywallBenefitAlertsBody": {
     "description": "Paywall benefit detail: push alerts"
   },
-  "paywallBenefitForecast": "7-day pressure forecast",
-  "@paywallBenefitForecast": {
-    "description": "Paywall benefit: forecast chart"
-  },
   "paywallBenefitForecastBody": "See what the air is about to do.",
   "@paywallBenefitForecastBody": {
     "description": "Paywall benefit detail: forecast chart"
-  },
-  "paywallBenefitInsights": "Your weather correlation",
-  "@paywallBenefitInsights": {
-    "description": "Paywall benefit: correlation insight"
   },
   "paywallBenefitInsightsBody": "How much of your pain really follows the pressure.",
   "@paywallBenefitInsightsBody": {
@@ -1593,13 +1509,13 @@
   "@paywallBenefitReport": {
     "description": "Paywall benefit: PDF report"
   },
+  "paywallBenefitExport": "Export to JSON and CSV",
+  "@paywallBenefitExport": {
+    "description": "Paywall benefit: exporting data as JSON and CSV"
+  },
   "paywallBenefitReportBody": "A clean PDF of your history to bring to appointments.",
   "@paywallBenefitReportBody": {
     "description": "Paywall benefit detail: PDF report"
-  },
-  "paywallBenefitSleep": "Sleep correlation",
-  "@paywallBenefitSleep": {
-    "description": "Paywall benefit title: Apple Health sleep"
   },
   "paywallBenefitSleepBody": "See whether your attacks follow the nights you sleep least, read from Apple Health.",
   "@paywallBenefitSleepBody": {
@@ -2951,14 +2867,9 @@
   "@appFeatureMedicationsTitle": {
     "description": "Feature row title: the medications screen"
   },
-  "appFeatureMedicationsBody": "Keep every drug in one place, and see how often each one actually helped. Up to {count} medications on the free plan.",
+  "appFeatureMedicationsBody": "Keep every drug in one place, and see how often each one actually helped.",
   "@appFeatureMedicationsBody": {
-    "description": "Feature row body: the medications screen. The count is the free-plan medication limit and comes from PremiumLimitConstant, never typed into the string",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+    "description": "Feature row body: the medications screen"
   },
   "appFeatureWidgetTitle": "Home screen widget",
   "@appFeatureWidgetTitle": {
@@ -3135,36 +3046,6 @@
     "placeholders": {
       "reason": {
         "type": "String"
-      }
-    }
-  },
-  "freeLimitUsed": "{used} of {limit} used",
-  "@freeLimitUsed": {
-    "description": "Caption under the free-plan usage bar",
-    "placeholders": {
-      "used": {
-        "type": "int"
-      },
-      "limit": {
-        "type": "int"
-      }
-    }
-  },
-  "freeLimitMedications": "{count, plural, =0{No free medications left} =1{1 free medication left} other{{count} free medications left}}",
-  "freeLimitReminders": "{count, plural, =0{No free reminders left} =1{1 free reminder left} other{{count} free reminders left}}",
-  "@freeLimitReminders": {
-    "description": "How many of the free plan's medication reminders are still available, above the reminder list.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "@freeLimitMedications": {
-    "description": "Headline of the free-plan medication usage indicator",
-    "placeholders": {
-      "count": {
-        "type": "int"
       }
     }
   },
@@ -3470,10 +3351,6 @@
   "insightsExplainSleep3": "A pattern, not a cause — a restless night can be an early sign of the attack already coming. Worth raising with your doctor.",
   "@insightsExplainSleep3": {
     "description": "Explanation sheet, sleep: pattern, not cause"
-  },
-  "premiumLockedPressure": "See the pressure forecast, how closely your attacks track it, and get alerted before the next drop.",
-  "@premiumLockedPressure": {
-    "description": "The pressure card's single locked pitch, covering forecast, correlation and alert"
   },
   "dashboardAlertShortcut": "Alert",
   "@dashboardAlertShortcut": {
@@ -3819,10 +3696,6 @@
   "factorsExplain3": "A difference is not a cause. A factor can sit on the same days as the real trigger, and something you do to feel better can end up looking like a protector.",
   "@factorsExplain3": {
     "description": "Info sheet, third paragraph: what the card cannot claim."
-  },
-  "premiumLockedFactors": "Unlock to see which of your days bring attacks on, and which keep them away.",
-  "@premiumLockedFactors": {
-    "description": "Locked-state pitch on the Factors tab."
   },
   "riskCardTitle": "Attack risk forecast",
   "@riskCardTitle": {
@@ -4234,19 +4107,6 @@
   "@alertsNeedsSignIn": {
     "description": "Line under the alert row saying an account is required before the switch is tapped"
   },
-  "freeHistoryTitle": "History locked",
-  "@freeHistoryTitle": {
-    "description": "Banner title on the free plan's history boundary. One line beside an Unlock button — keep it short"
-  },
-  "freeHistoryBody": "Attacks before {date} are locked. Nothing is deleted — unlock Premium to open your history.",
-  "@freeHistoryBody": {
-    "description": "Names the date the free plan's readable history starts at, reassures that nothing older was deleted, and says Premium opens it. At most three lines beside an Unlock button",
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
   "logHeadZoomOut": "Zoom out",
   "@logHeadZoomOut": {
     "description": "Decrease head model magnification."
@@ -4272,7 +4132,12 @@
   "logHeadRotationSpeedValue": "{percent}%",
   "@logHeadRotationSpeedValue": {
     "description": "Visible percentage under the head rotation speed icon.",
-    "placeholders": {"percent": {"type": "int", "example": "75"}}
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "75"
+      }
+    }
   },
   "logHeadRotationSpeed": "Rotation speed {percent}%",
   "@logHeadRotationSpeed": {
@@ -4285,19 +4150,16 @@
     }
   },
   "aboutHeadModelCredit": "3D head: “Infinite” by Lee Perry-Smith / triplegangers.com, from the three.js examples. Licensed under CC BY 3.0 (creativecommons.org/licenses/by/3.0/). Adapted by BaroEase: cropped, divided into pain regions, and recolored.",
-  "@aboutHeadModelCredit": {"description": "Required attribution and modification notice for the bundled CC BY 3.0 head scan."},
+  "@aboutHeadModelCredit": {
+    "description": "Required attribution and modification notice for the bundled CC BY 3.0 head scan."
+  },
   "navPanelExpand": "Expand navigation",
-  "@navPanelExpand": {"description": "Tooltip on the control that reopens the tablet navigation panel, shown in the app bar while it is collapsed"},
+  "@navPanelExpand": {
+    "description": "Tooltip on the control that reopens the tablet navigation panel, shown in the app bar while it is collapsed"
+  },
   "navPanelCollapse": "Collapse navigation",
-  "@navPanelCollapse": {"description": "Tooltip on the control that closes the tablet navigation panel, shown in the panel's own header"},
-  "historyLockedTag": "Premium required",
-  "@historyLockedTag": {"description": "Pill on a history row the free window does not reach"},
-  "historyLockedTitle": "Older than your free history",
-  "@historyLockedTitle": {"description": "Title of the sheet a locked history row opens"},
-  "historyLockedBody": "Your free plan reads back the last {days} days. This attack is older than that \u2014 it is still on this phone and nothing was deleted. Premium opens your whole record.",
-  "@historyLockedBody": {
-    "description": "Body of that sheet",
-    "placeholders": {"days": {"type": "int", "example": "90"}}
+  "@navPanelCollapse": {
+    "description": "Tooltip on the control that closes the tablet navigation panel, shown in the panel's own header"
   },
   "syncCardSyncingTitle": "Syncing",
   "@syncCardSyncingTitle": {
@@ -4365,6 +4227,6 @@
   },
   "syncCardFailedBody": "It will try again on its own",
   "@syncCardFailedBody": {
-    "description": "Settings sync card detail after a sync failed \u2014 offline or refused, it retries on its own"
+    "description": "Settings sync card detail after a sync failed — offline or refused, it retries on its own"
   }
 }

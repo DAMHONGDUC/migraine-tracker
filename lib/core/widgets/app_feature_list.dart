@@ -4,7 +4,6 @@ import 'package:system_design/index.dart';
 
 import '../../features/premium/providers.dart';
 import '../../l10n/gen/app_localizations.dart';
-import '../constants/premium_limit_constant.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_icon_constant.dart';
 import '../theme/app_text_style.dart';
@@ -45,12 +44,12 @@ enum AppFeature {
   notifications(AppIconConstant.inbox),
   sync(AppIconConstant.synced),
   calm(AppIconConstant.darkMode),
-  export(AppIconConstant.export, premium: true),
+  forecast(AppIconConstant.lineChart),
+  correlation(AppIconConstant.analysis),
+  activity(AppIconConstant.steps),
+  sleep(AppIconConstant.sleep),
   alerts(AppIconConstant.notifications, premium: true),
-  forecast(AppIconConstant.lineChart, premium: true),
-  correlation(AppIconConstant.analysis, premium: true),
-  activity(AppIconConstant.steps, premium: true),
-  sleep(AppIconConstant.sleep, premium: true),
+  export(AppIconConstant.export, premium: true),
   report(AppIconConstant.exportPdf, premium: true);
 
   const AppFeature(this.icon, {this.premium = false});
@@ -73,11 +72,11 @@ enum AppFeature {
     ),
     AppFeature.medications => (
       l10n.appFeatureMedicationsTitle,
-      l10n.appFeatureMedicationsBody(PremiumLimitConstant.medications),
+      l10n.appFeatureMedicationsBody,
     ),
     AppFeature.reminders => (
       l10n.appFeatureRemindersTitle,
-      l10n.appFeatureRemindersBody(PremiumLimitConstant.reminders),
+      l10n.appFeatureRemindersBody,
     ),
     AppFeature.widget => (
       l10n.appFeatureWidgetTitle,

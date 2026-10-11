@@ -1,6 +1,5 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/core/constants/premium_limit_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
@@ -136,13 +135,13 @@ void main() {
   });
 
   // Forced rather than rolled, like the weatherless attack: the scatter window
-  // is a hair over ninety days, so leaving this to chance seeded a blurred row
+  // is a hair over ninety days, so leaving this to chance seeded an older row
   // about one run in ten — and a state that rare is a state nobody reviews.
-  test('two attacks land behind the free history window', () async {
+  test('two attacks land more than ninety days back', () async {
     await seeder.seed();
 
     final DateTime cutoff = DateTime.now().toUtc().subtract(
-      PremiumLimitConstant.freeHistoryWindow,
+      const Duration(days: 90),
     );
     final List<Attack> all = await attacks();
     final List<Attack> locked = all
@@ -155,7 +154,7 @@ void main() {
       all.length - locked.length,
       DevSeedService.attackCount,
     );
-    // Distinct days, so two blurred rows never share one.
+    // Distinct days, so two older rows never share one.
     expect(
       locked
           .map((Attack a) => DateTime(
@@ -169,7 +168,7 @@ void main() {
 
   });
 
-  // Buying premium must reveal an attack WITH its weather, not a gap.
+  // An old attack must read back WITH its weather, not a gap.
   test('the pressure readings reach the oldest locked attack', () async {
     await seeder.seed();
 

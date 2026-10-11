@@ -2,13 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
-import 'package:migraine_tracker/features/dashboard/presentation/widgets/risk_score_card.dart';
 
 import '../../helpers/pump_app.dart';
 
-/// The dashboard's risk card is premium, and **absent** rather than locked for
-/// everyone else: the premium banner is that screen's one door, and a second
-/// locked card would be two pitches for one purchase.
+/// The dashboard's risk card is free (`docs/PREMIUM_RULES.md`): every user gets
+/// it, told what it is waiting for until there is history to score.
 void main() {
   Attack attackDaysAgo(int daysAgo) {
     final DateTime now = DateTime.now();
@@ -30,25 +28,10 @@ void main() {
     }
   }
 
-  testWidgets('a free user never gets the card at all', (tester) async {
-    final PumpedApp app = await pumpApp(tester);
-    await seedHistory(app);
-    await tester.pump(const Duration(milliseconds: 400));
-
-    // Not even placed: the screen only adds the card when it has something to draw.
-    expect(find.byType(RiskScoreCard), findsNothing);
-    expect(find.text('Attack risk forecast'), findsNothing);
-    expect(find.text('Next 7 days · a prediction'), findsNothing);
-    expect(find.text('Low'), findsNothing);
-    expect(find.text('Moderate'), findsNothing);
-    expect(find.text('High'), findsNothing);
-    await finishTest(tester);
-  });
-
-  testWidgets('premium gets the card once there is history behind it', (
+  testWidgets('a free user gets the card once there is history behind it', (
     tester,
   ) async {
-    final PumpedApp app = await pumpApp(tester, premium: true);
+    final PumpedApp app = await pumpApp(tester);
     await seedHistory(app);
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 400));
@@ -58,10 +41,10 @@ void main() {
   });
 
   // A score with nothing behind it would be a number the user cannot check.
-  testWidgets('premium with no history is told what it is waiting for', (
+  testWidgets('with no history it is told what it is waiting for', (
     tester,
   ) async {
-    await pumpApp(tester, premium: true);
+    await pumpApp(tester);
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 400));
 

@@ -1,12 +1,12 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/core/constants/premium_limit_constant.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/core/widgets/alert_summary_tag.dart';
 import 'package:migraine_tracker/core/widgets/premium_gate.dart';
 import 'package:migraine_tracker/core/widgets/sections/alerts_settings_tile.dart';
 import 'package:migraine_tracker/core/widgets/sections/premium_settings_tile.dart';
+import 'package:migraine_tracker/features/app_config/domain/entities/app_config.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -20,10 +20,24 @@ import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
-/// The pressure card's single locked pitch.
-const String lockedPressurePitch =
-    'See the pressure forecast, how closely your attacks track it, and get '
-    'alerted before the next drop.';
+/// The alert row on the pressure card, which is the only locked control on the tab.
+Finder alertRowOnCard() => find.descendant(
+  of: find.byType(PressureCard),
+  matching: find.text('Pressure-drop alerts'),
+);
+
+/// Whether the pressure card built the real alert control rather than the locked row.
+Finder alertControlOnCard() => find.descendant(
+  of: find.byType(PressureCard),
+  matching: find.byType(AlertSummaryTag),
+);
+
+/// A free user's way onto the paywall from Insights: the locked alert row.
+Future<void> openPaywallFromAlertRow(WidgetTester tester) async {
+  await openPressureInsight(tester);
+  await tapVisible(tester, alertRowOnCard());
+  await tester.pump(const Duration(milliseconds: 400));
+}
 
 /// 15 attacks with weather — enough for the correlation engine to produce a real insight (9 during rapid drops → 60%).
 Future<void> seedInsightData(WidgetTester tester, PumpedApp app) async {
@@ -58,16 +72,13 @@ PressureForecast forecast() => PressureForecast(
 );
 
 void main() {
-  testWidgets('the dev toggle unlocks every gate, and locking re-locks them', (
+  testWidgets('the dev toggle opens the alert row, and locking closes it', (
     tester,
   ) async {
     // Signed out on purpose: the dev row no longer sits behind an account, because neither does premium (App Store 5.1.1(v)). Unentitled is still not premium.
-    final PumpedApp app = await pumpApp(tester);
-    await seedInsightData(tester, app);
+    await pumpApp(tester);
     await openPressureInsight(tester);
-
-    // With no entitlement, the analysis is teased.
-    expect(find.text('60%'), findsNothing);
+    expect(alertControlOnCard(), findsNothing);
 
     // Driven through the row a developer actually taps: the override must reach the gates, not just the switch — the whole point of hasPremiumProvider.
     await openSettings(tester);
@@ -75,20 +86,20 @@ void main() {
 
     // `openInsights`, not `openPressureInsight`.
     await openInsights(tester);
-    expect(find.text('60%'), findsOneWidget);
+    expect(alertControlOnCard(), findsOneWidget);
 
     await openSettings(tester);
     await tapVisible(tester, find.text('Premium (mock)'));
 
     await openInsights(tester);
-    expect(find.text('60%'), findsNothing);
+    expect(alertControlOnCard(), findsNothing);
 
     await finishTest(tester);
   });
 
-  // Both bodies were added to PressureCard after the gating tests were written, and TESTING.md item 4 is explicit that proving a free user's tree holds.
-  group('the two bodies added to the pressure card', () {
-    testWidgets('a free user gets neither the verdict nor the chart', (
+  // Everything but alerts and export is free (`docs/PREMIUM_RULES.md`).
+  group('free user', () {
+    testWidgets('sees the correlation, the verdict and the history chart', (
       tester,
     ) async {
       final app = await pumpApp(tester);
@@ -96,80 +107,55 @@ void main() {
 
       await openPressureInsight(tester);
 
-      // Absent from the tree entirely, not merely covered: a scrim over a real figure is one screenshot away from leaking it.
-      expect(find.byType(TriggerVerdictBody), findsNothing);
-      expect(find.byType(PressureHistoryBody), findsNothing);
-
-      await finishTest(tester);
-    });
-
-    testWidgets('a premium user gets both', (tester) async {
-      final app = await pumpApp(tester, premium: true);
-      await seedInsightData(tester, app);
-
-      await openPressureInsight(tester);
-
+      expect(find.text('60%'), findsOneWidget);
       expect(find.byType(TriggerVerdictBody), findsOneWidget);
       expect(find.byType(PressureHistoryBody), findsOneWidget);
 
       await finishTest(tester);
     });
-  });
 
-  group('free user', () {
-    testWidgets('never sees the correlation percentage, only the teaser', (
-      tester,
-    ) async {
-      final app = await pumpApp(tester);
-      await seedInsightData(tester, app);
-
-      await openPressureInsight(tester);
-
-      // The analysis output is absent from the tree entirely.
-      expect(find.text('60%'), findsNothing);
-      expect(find.textContaining('Based on'), findsNothing);
-      // The value moment is teased instead — ONE pitch for the whole card, covering the forecast, the correlation and the alert together.
-      expect(find.text(lockedPressurePitch), findsOneWidget);
-      expect(find.text('Premium'), findsWidgets);
-
-      await finishTest(tester);
-    });
-
-    // Flipped twice by the owner and premium again: the free promise is the weather card, and the pressure chart is the paid reading.
-    testWidgets('never sees the forecast chart — pressure is the product', (
-      tester,
-    ) async {
+    testWidgets('sees the forecast chart', (tester) async {
       final app = await pumpApp(tester);
       app.weather.forecast = forecast();
 
       await openPressureInsight(tester);
 
-      expect(find.byType(LineChart), findsNothing);
-      expect(find.text(lockedPressurePitch), findsOneWidget);
+      expect(find.byType(LineChart), findsOneWidget);
 
       await finishTest(tester);
     });
 
-    testWidgets('sees the History chart deck as a locked sample', (
+    testWidgets('below the data threshold sees progress, not a pitch', (
+      tester,
+    ) async {
+      await pumpApp(tester); // no attacks
+      await openPressureInsight(tester);
+
+      expect(
+        find.text(
+          'Log 15 more attacks with weather data to unlock this insight.',
+        ),
+        findsOneWidget,
+      );
+
+      await finishTest(tester);
+    });
+
+    testWidgets('sees every History chart drawn from their own attacks', (
       tester,
     ) async {
       final app = await pumpApp(tester);
       await seedInsightData(tester, app);
       await openHistoryCharts(tester);
 
-      // Four of the five: the severity donut is the dashboard's, free here too.
-      expect(find.byType(PremiumChartLock), findsNWidgets(4));
       expect(find.text('Moderate · 15'), findsOneWidget);
-      // The locked four draw the sample,.
-      expect(
-        find.byType(SdProgressRowV2),
-        findsNWidgets(HeadRegion.values.length),
-      );
+      // One row, the user's own: every seeded attack is `left`.
+      expect(find.byType(SdProgressRowV2), findsOneWidget);
 
       await finishTest(tester);
     });
 
-    testWidgets('gets two reminders; the third names the limit, then pitches', (
+    testWidgets('adds a third reminder, past the limit that used to be', (
       tester,
     ) async {
       await pumpApp(tester);
@@ -177,51 +163,38 @@ void main() {
       await addMedication(tester, 'Sumatriptan');
       await openMedication(tester, 'Sumatriptan');
 
-      await addReminders(tester, PremiumLimitConstant.reminders);
-      expect(
-        find.byIcon(AppIconConstant.reminder),
-        findsNWidgets(PremiumLimitConstant.reminders),
-      );
+      await addReminders(tester, 3);
 
-      // Budget spent: the limit is named, and no picker comes up.
-      await openAddReminder(tester);
-      expect(find.text('2 reminders on the free plan'), findsOneWidget);
-      expect(find.byType(ListWheelScrollView), findsNothing);
+      expect(find.byIcon(AppIconConstant.reminder), findsNWidgets(3));
+      expect(find.textContaining('on the free plan'), findsNothing);
       expect(find.text('BaroEase Premium'), findsNothing);
 
-      // The pitch is the user's choice from there, not automatic.
-      await tapVisible(tester, find.text('Unlock'));
+      await finishTest(tester);
+    });
+
+    testWidgets('the alert row is the one locked control on the pressure tab', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await openPressureInsight(tester);
+
+      expect(alertControlOnCard(), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byType(PressureCard),
+          matching: find.byType(PremiumBadge),
+        ),
+        findsOneWidget,
+      );
+
+      await tapVisible(tester, alertRowOnCard());
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('BaroEase Premium'), findsOneWidget);
 
       await finishTest(tester);
     });
 
-    testWidgets('declining the reminder limit dialog leaves it where it was', (
-      tester,
-    ) async {
-      await pumpApp(tester);
-      await openMedications(tester);
-      await addMedication(tester, 'Sumatriptan');
-      await openMedication(tester, 'Sumatriptan');
-
-      await addReminders(tester, PremiumLimitConstant.reminders);
-      await openAddReminder(tester);
-      await tapVisible(tester, find.text('Cancel'));
-      await tester.pump(const Duration(milliseconds: 400));
-
-      // No paywall, no extra reminder, still on the medication.
-      expect(find.text('BaroEase Premium'), findsNothing);
-      expect(
-        find.byIcon(AppIconConstant.reminder),
-        findsNWidgets(PremiumLimitConstant.reminders),
-      );
-      expect(find.text('Sumatriptan'), findsWidgets);
-
-      await finishTest(tester);
-    });
-
-    testWidgets('cannot reach the alerts toggle or the PDF report', (
+    testWidgets('cannot reach the alerts toggle or the export screen', (
       tester,
     ) async {
       await pumpApp(tester);
@@ -245,7 +218,7 @@ void main() {
       expect(find.text('Pressure-drop alerts'), findsOneWidget);
       expect(find.byType(PremiumBadge), findsWidgets);
 
-      // Export is premium in full now — the data exports as well as the PDF — so the row is a badge and a paywall, never a path to a file.
+      // Export is premium in full — the data exports as well as the PDF — so the row is a badge and a paywall, never a path to a file.
       await tapVisible(tester, find.text('Export data'));
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('BaroEase Premium'), findsOneWidget);
@@ -253,15 +226,11 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('still gets logging, history and medications', (tester) async {
+    testWidgets('still gets logging and medications', (tester) async {
       final app = await pumpApp(tester);
       await seedInsightData(tester, app);
 
-      // The export row stays, wearing the badge rather than vanishing — one that disappeared would read as a feature the app lost.
-      await openSettings(tester);
-      await scrollIntoView(tester, find.text('Export data'));
-      expect(find.text('Export data'), findsOneWidget);
-
+      // The export row is covered by the Settings test above, which taps it.
       await openMedications(tester);
       expect(find.text('Medications'), findsOneWidget);
 
@@ -275,16 +244,11 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('tapping Unlock opens the paywall, account or not', (
+    testWidgets('the locked alert row opens the paywall, account or not', (
       tester,
     ) async {
-      final app = await pumpApp(tester);
-      await seedInsightData(tester, app);
-      await openPressureInsight(tester);
-
-      await tester.tap(find.text('Unlock').first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
+      await pumpApp(tester);
+      await openPaywallFromAlertRow(tester);
 
       // The pitch comes first: a login screen must never appear in front of a paywall the user has not been shown yet.
       expect(find.text('BaroEase Premium'), findsOneWidget);
@@ -299,12 +263,7 @@ void main() {
       tester,
     ) async {
       final app = await pumpApp(tester);
-      await seedInsightData(tester, app);
-      await openPressureInsight(tester);
-
-      await tester.tap(find.text('Unlock').first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
+      await openPaywallFromAlertRow(tester);
 
       await tapVisible(
         tester,
@@ -331,12 +290,7 @@ void main() {
       tester,
     ) async {
       final app = await pumpApp(tester);
-      await seedInsightData(tester, app);
-      await openPressureInsight(tester);
-
-      await tester.tap(find.text('Unlock').first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
+      await openPaywallFromAlertRow(tester);
 
       await tapVisible(
         tester,
@@ -354,95 +308,42 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('an entitlement without an account unlocks everything', (
+    testWidgets('the app_config switch opens alerts to a free account', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        signedIn: true,
+        appConfig: AppConfig(freePressureAlerts: true),
+      );
+      await openPressureInsight(tester);
+
+      expect(alertControlOnCard(), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(PressureCard),
+          matching: find.byType(PremiumBadge),
+        ),
+        findsNothing,
+      );
+
+      await finishTest(tester);
+    });
+
+    testWidgets('an entitlement without an account unlocks the alert row', (
       tester,
     ) async {
       // The combination RevenueCat produces after a purchase nobody signed in for.
-      final app = await pumpApp(tester, premium: true, signedIn: false);
-      await seedInsightData(tester, app);
-
+      await pumpApp(tester, premium: true, signedIn: false);
       await openPressureInsight(tester);
 
-      expect(find.text('60%'), findsOneWidget);
+      expect(alertControlOnCard(), findsOneWidget);
 
       await finishTest(tester);
     });
-
-    testWidgets(
-      'below the data threshold it still sees the pitch, not progress',
-      (tester) async {
-        await pumpApp(tester); // no attacks
-        await openPressureInsight(tester);
-
-        // The gate comes before the data now.
-        expect(find.text(lockedPressurePitch), findsOneWidget);
-        expect(
-          find.text(
-            'Log 15 more attacks with weather data to unlock this insight.',
-          ),
-          findsNothing,
-        );
-
-        await finishTest(tester);
-      },
-    );
   });
 
   group('premium user', () {
-    testWidgets('sees the correlation percentage', (tester) async {
-      final app = await pumpApp(tester, premium: true);
-      await seedInsightData(tester, app);
-
-      await openPressureInsight(tester);
-
-      expect(find.text('60%'), findsOneWidget);
-      expect(find.text('Unlock'), findsNothing);
-
-      await finishTest(tester);
-    });
-
-    testWidgets('sees the forecast chart', (tester) async {
-      final app = await pumpApp(tester, premium: true);
-      app.weather.forecast = forecast();
-
-      await openPressureInsight(tester);
-
-      expect(find.byType(LineChart), findsOneWidget);
-
-      await finishTest(tester);
-    });
-
-    testWidgets('sees the History chart deck, uncovered', (tester) async {
-      final app = await pumpApp(tester, premium: true);
-      await seedInsightData(tester, app);
-      await openHistoryCharts(tester);
-
-      expect(find.byType(PremiumChartLock), findsNothing);
-      expect(find.text('Moderate · 15'), findsOneWidget);
-      // One row, not the sample's five: every seeded attack is `left`.
-      expect(find.byType(SdProgressRowV2), findsOneWidget);
-
-      await finishTest(tester);
-    });
-
-    testWidgets('goes past the free reminder limit', (tester) async {
-      await pumpApp(tester, premium: true);
-      await openMedications(tester);
-      await addMedication(tester, 'Sumatriptan');
-      await openMedication(tester, 'Sumatriptan');
-
-      await addReminders(tester, PremiumLimitConstant.reminders + 1);
-
-      expect(
-        find.byIcon(AppIconConstant.reminder),
-        findsNWidgets(PremiumLimitConstant.reminders + 1),
-      );
-      expect(find.textContaining('on the free plan'), findsNothing);
-      expect(find.text('BaroEase Premium'), findsNothing);
-
-      await finishTest(tester);
-    });
-
     testWidgets('gets the alerts toggle and the PDF report', (tester) async {
       // Signed in as well as premium: the alerts row takes a paying user to
       // sign-in first, since the server never pushes to an anonymous session

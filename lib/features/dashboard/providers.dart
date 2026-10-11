@@ -2,7 +2,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../attacks/providers.dart';
 import '../health/providers.dart';
-import '../premium/providers.dart';
 import '../weather/domain/entities/weather_report.dart';
 import '../weather/providers.dart';
 import 'domain/entities/week_summary.dart';
@@ -22,7 +21,7 @@ final hasTodayReadingsProvider = Provider<bool>((ref) {
       .value
       ?.current;
 
-  return (ref.watch(hasPremiumProvider) && now?.pressureHpa != null) ||
+  return now?.pressureHpa != null ||
       ref.watch(stepSummaryProvider).value?.latest != null ||
       ref.watch(sleepSummaryProvider).value?.latest != null;
 });

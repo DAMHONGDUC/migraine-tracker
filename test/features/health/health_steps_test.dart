@@ -43,7 +43,7 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('a free user never reaches the premium step correlation', (
+    testWidgets('a free user gets the step correlation', (
       tester,
     ) async {
       final PumpedApp app = await pumpApp(
@@ -55,13 +55,8 @@ void main() {
       );
       await openActivityInsight(tester);
 
-      // The analysis half is what premium buys: a free user gets the pitch, and nothing behind it reads HealthKit again.
-      expect(
-        find.text(
-          'Unlock to see whether your attacks follow your least active days.',
-        ),
-        findsOneWidget,
-      );
+      // The analysis is free (`docs/PREMIUM_RULES.md`): the card is built, not pitched.
+      expect(find.text('Steps & attacks'), findsOneWidget);
       // Skip read-count assertions because each free surface reads independently.
       expect(app.health.stepReads, greaterThan(0));
 

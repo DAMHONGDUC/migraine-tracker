@@ -5,9 +5,8 @@ import 'package:migraine_tracker/features/daily_log/domain/enums/daily_factor.da
 
 import '../../helpers/pump_app.dart';
 
-/// The Factors tab is premium in full, and this is the test that proves a free
-/// user's tree never holds the map — not blurred, not offscreen, not built and
-/// hidden (`docs/rules/TESTING.md`, item 4).
+/// The Factors tab is free (`docs/PREMIUM_RULES.md`): a free user gets the map
+/// itself, never a pitch.
 void main() {
   DateTime dayOf(int daysAgo) {
     final DateTime now = DateTime.now();
@@ -31,31 +30,12 @@ void main() {
     }
   }
 
-  testWidgets('a free user gets the pitch and none of the map', (tester) async {
+  testWidgets('a free user gets the map itself', (tester) async {
     final PumpedApp app = await pumpApp(tester);
     await seedCheckIns(app);
     await openFactorsInsight(tester);
 
-    // The offer, and the badge that says what it is.
-    expect(find.text('Premium'), findsWidgets);
-    expect(
-      find.textContaining('which of your days bring attacks on'),
-      findsOneWidget,
-    );
-    // None of the map's own vocabulary may exist anywhere in the tree.
-    expect(find.text('More attacks'), findsNothing);
-    expect(find.text('Fewer attacks'), findsNothing);
-    expect(find.text('No difference'), findsNothing);
-    expect(find.text('Alcohol'), findsNothing);
-    await finishTest(tester);
-  });
-
-  testWidgets('premium gets the map itself', (tester) async {
-    final PumpedApp app = await pumpApp(tester, premium: true);
-    await seedCheckIns(app);
-    await openFactorsInsight(tester);
-
-    // Nothing is being sold on a tab the user already owns.
+    // Nothing is being sold on this tab.
     expect(
       find.textContaining('which of your days bring attacks on'),
       findsNothing,

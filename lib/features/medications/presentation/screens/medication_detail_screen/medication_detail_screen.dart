@@ -4,17 +4,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
-import '../../../../../core/constants/premium_limit_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/medication_effectiveness_label.dart';
 import '../../../../../core/permissions/app_permission.dart';
-import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/utils/date_time_utils.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
-import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../insights/domain/entities/medication_effectiveness_result.dart';
 import '../../../../insights/providers.dart';
@@ -77,17 +74,6 @@ class MedicationDetailScreen extends ConsumerWidget {
   ) async {
     final AppLocalizations l10n = context.l10n;
 
-    // - the limit is named before the pitch.
-    if (!ref.read(canAddReminderProvider)) {
-      await NavigationUtils.toPaywallFromLimit(
-        context,
-        ref,
-        title: l10n.reminderLimitTitle(PremiumLimitConstant.reminders),
-        body: l10n.reminderLimitBody(PremiumLimitConstant.reminders),
-      );
-      return;
-    }
-
     // Ask up front; if permanently off, AppPermission shows the Settings sheet.
     final bool granted = await ref
         .read(appPermissionProvider)
@@ -141,7 +127,6 @@ class MedicationDetailScreen extends ConsumerWidget {
       remindersForMedicationProvider(medication.id),
     );
     // Null while premium — there is no limit to draw.
-    final int? remindersUsed = ref.watch(remindersUsedProvider);
 
     return SdScaffoldV2(
       title: Text(medication.name, style: AppTextStyle.titleLarge),
@@ -168,20 +153,6 @@ class MedicationDetailScreen extends ConsumerWidget {
             _Effectiveness(medicationName: medication.name),
             SizedBox(height: SdSpacingConstant.h24),
             SdSectionHeaderV2(l10n.medicationDetailReminders),
-            // The REMINDER budget, at the top of the section it limits (owner's call).
-            if (remindersUsed != null) ...<Widget>[
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: SdContentPaddingV2.horizontal,
-                ),
-                child: FreeLimitProgress(
-                  used: remindersUsed,
-                  limit: PremiumLimitConstant.reminders,
-                  titleBuilder: (int left) => l10n.freeLimitReminders(left),
-                ),
-              ),
-              SizedBox(height: SdContentPaddingV2.listItemGap),
-            ],
             if (reminders.isEmpty)
               Padding(
                 padding: EdgeInsets.symmetric(
@@ -215,10 +186,7 @@ class MedicationDetailScreen extends ConsumerWidget {
         actions: <Widget>[
           SdButtonV2(
             variant: SdButtonVariantV2.primary,
-            // The button stays — it opens the paywall instead. Only the glyph says the budget is spent, so the label never changes.
-            icon: ref.watch(canAddReminderProvider)
-                ? AppIconConstant.reminderAdd
-                : AppIconConstant.locked,
+            icon: AppIconConstant.reminderAdd,
             onPressed: () => _addReminder(context, ref, medication),
             label: l10n.remindersAdd,
           ),

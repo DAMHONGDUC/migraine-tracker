@@ -48,15 +48,17 @@ void main() {
     // The wipe row went with the Settings feature (owner's call): the list may not offer what the app no longer does.
     expect(find.text('Delete everything'), findsNothing);
 
-    // Premium — one badge each, and the group heading is the eighth.
-    expect(find.text('Export your data'), findsOneWidget);
-    expect(find.text('Pressure-drop alerts'), findsOneWidget);
+    // The analyses are free now, so they sit in the free group, unbadged.
     expect(find.text('7-day pressure forecast'), findsOneWidget);
     expect(find.text('Weather correlation'), findsOneWidget);
     expect(find.text('Exertion and steps'), findsOneWidget);
     expect(find.text('Sleep correlation'), findsOneWidget);
+
+    // Premium — one badge each, and the group heading is the fourth.
+    expect(find.text('Pressure-drop alerts'), findsOneWidget);
+    expect(find.text('Export your data'), findsOneWidget);
     expect(find.text('Doctor report'), findsOneWidget);
-    expect(find.text('Premium'), findsNWidgets(8));
+    expect(find.text('Premium'), findsNWidgets(4));
 
     await finishTest(tester);
   });

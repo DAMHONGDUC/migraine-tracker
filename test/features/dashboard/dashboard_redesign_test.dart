@@ -145,10 +145,10 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('premium: the risk forecast is a compact card of its own', (
+  testWidgets('the risk forecast is a compact card of its own', (
     tester,
   ) async {
-    final PumpedApp app = await pumpApp(tester, premium: true);
+    final PumpedApp app = await pumpApp(tester);
     await seedHistory(app);
     await settle(tester);
 
@@ -171,7 +171,7 @@ void main() {
   testWidgets('tapping the risk card opens the forecast screen', (
     tester,
   ) async {
-    final PumpedApp app = await pumpApp(tester, premium: true);
+    final PumpedApp app = await pumpApp(tester);
     await seedHistory(app);
     await settle(tester);
 
@@ -192,14 +192,11 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('free: no risk card and no divider in the weather card', (
-    tester,
-  ) async {
+  testWidgets('no divider in the weather card', (tester) async {
     final PumpedApp app = await pumpApp(tester);
     await seedHistory(app);
     await settle(tester);
 
-    expect(find.byType(RiskScoreCard), findsNothing);
     expect(
       find.descendant(
         of: find.byType(CurrentWeatherCard),

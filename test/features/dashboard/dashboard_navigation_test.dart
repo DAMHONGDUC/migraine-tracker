@@ -62,7 +62,9 @@ void main() {
     await _seedOneAttack(app);
     await _settle(tester);
 
-    // The severity mix card appears once there are attacks.
+    // The severity mix card appears once there are attacks. Below the fold
+    // since the risk card is free and sits above it: scroll before looking.
+    await scrollIntoView(tester, find.text('Severity mix'));
     expect(find.text('Severity mix'), findsOneWidget);
 
     // Chart is wrapped in IgnorePointer so the whole card is one tap target; warnIfMissed lets the hit fall through to the SdPressableScaleV2 behind it.

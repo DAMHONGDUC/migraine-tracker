@@ -4,11 +4,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
-import '../../../../../core/constants/premium_limit_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/medication_effectiveness_label.dart';
 import '../../../../../core/router/app_router.dart';
-import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_icon_size.dart';
@@ -16,7 +14,6 @@ import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/active_filter_summary.dart';
 import '../../../../../core/widgets/all_filters_pill.dart';
 import '../../../../../core/widgets/all_filters_sheet.dart';
-import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../core/widgets/medication_name_dialog.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../insights/domain/entities/medication_effectiveness_result.dart';
@@ -130,21 +127,6 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   }
 
   Future<void> _add() async {
-    // The limit is named before the pitch — this button says "Add medication", so a purchase screen out of it reads as a bug.
-    if (!ref.read(canAddMedicationProvider)) {
-      await NavigationUtils.toPaywallFromLimit(
-        context,
-        ref,
-        title: context.l10n.medicationLimitTitle(
-          PremiumLimitConstant.medications,
-        ),
-        body: context.l10n.medicationLimitBody(
-          PremiumLimitConstant.medications,
-        ),
-      );
-      return;
-    }
-
     final String? name = await const MedicationNameDialog().show(context);
 
     if (name == null) return;
@@ -164,16 +146,13 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final searchQuery = ref.watch(medicationSearchProvider);
     // Gap cards leave for the bar/filter strip; fixed regardless of collapse state, so the list never jumps mid-scroll (see SdCollapsingFilterScaffoldV2).
     final filterBarHeight = SdContentPaddingV2.belowPinnedFilterBar(context);
-    // Null while premium. When shown it takes the filter strip's gap, so whatever follows starts flush against it instead of clearing the bar twice.
-    final int? used = ref.watch(medicationsUsedProvider);
-    // A safety count outranks a plan meter, so it takes the top slot.
+    // A safety count takes the top slot.
     final bool overusing =
         ref.watch(medicationOveruseProvider).risk != MedicationOveruseRisk.none;
     final int activeFilters = filters.activeCount;
-    final double limitTop = overusing ? 0 : filterBarHeight;
     // The summary takes the strip's gap only when nothing above it already has.
-    final double summaryTop = overusing || used != null ? 0 : filterBarHeight;
-    final double contentTop = overusing || used != null || activeFilters > 0
+    final double summaryTop = overusing ? 0 : filterBarHeight;
+    final double contentTop = overusing || activeFilters > 0
         ? 0
         : filterBarHeight;
 
@@ -247,24 +226,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                   child: MedicationOveruseBanner(),
                 ),
               ),
-            // Ahead of the first card, and ahead of the empty state too — how many the free plan holds is worth saying before any exist.
-            if (used != null)
-              SliverPadding(
-                padding: EdgeInsets.fromLTRB(
-                  SdContentPaddingV2.horizontal,
-                  limitTop,
-                  SdContentPaddingV2.horizontal,
-                  SdContentPaddingV2.listItemGap,
-                ),
-                sliver: SliverToBoxAdapter(
-                  child: FreeLimitProgress(
-                    used: used,
-                    limit: PremiumLimitConstant.medications,
-                    titleBuilder: (int left) => l10n.freeLimitMedications(left),
-                  ),
-                ),
-              ),
-            // Under the meter, above the first card: how much of the list is being hidden, and the one tap that gives it back.
+            // Above the first card: how much of the list is being hidden, and the one tap that gives it back.
             if (activeFilters > 0)
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(

@@ -7,9 +7,7 @@ import '../../../../core/extensions/map_factor_label.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/analysis_info_sheet.dart';
-import '../../../../core/widgets/premium_gate.dart';
 import '../../../../l10n/gen/app_localizations.dart';
-import '../../../premium/providers.dart';
 import '../../domain/entities/factor_association.dart';
 import '../../providers.dart';
 import 'insight_card.dart';
@@ -27,13 +25,6 @@ class FactorsCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-
-    if (!ref.watch(hasPremiumProvider)) {
-      return InsightCard(
-        trailing: const PremiumBadge(),
-        child: PremiumUnlockPrompt(message: l10n.premiumLockedFactors),
-      );
-    }
 
     return InsightCard(
       onInfo: () => AnalysisInfoSheet(

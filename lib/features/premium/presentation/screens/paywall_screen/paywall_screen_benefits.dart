@@ -3,23 +3,18 @@ part of 'paywall_screen.dart';
 /// What the subscription buys, framed as one block.
 ///
 /// **Compact, because it shares the screen.** The plans and the CTA are pinned
-/// under it and must stay visible while this scrolls; six comfortable rows
-/// pushed the pitch off a small phone before the first plan was reached.
+/// under it and must stay visible while this scrolls.
 class _Benefits extends StatelessWidget {
   const _Benefits();
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
-    // A table rather than six near-identical blocks: what this card says is
-    // the list, and the list is the part that changes.
+    // Only what Premium adds — everything else is free (`docs/PREMIUM_RULES.md`).
     final List<(IconData, String)> benefits = <(IconData, String)>[
-      (AppIconConstant.unlimited, l10n.paywallBenefitUnlimited),
       (AppIconConstant.reminderActive, l10n.paywallBenefitAlerts),
-      (AppIconConstant.lineChart, l10n.paywallBenefitForecast),
-      (AppIconConstant.insights, l10n.paywallBenefitInsights),
+      (AppIconConstant.export, l10n.paywallBenefitExport),
       (AppIconConstant.exportPdf, l10n.paywallBenefitReport),
-      (AppIconConstant.sleep, l10n.paywallBenefitSleep),
     ];
 
     return SdCardV2(

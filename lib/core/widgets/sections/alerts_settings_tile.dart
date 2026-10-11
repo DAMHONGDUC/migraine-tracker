@@ -25,6 +25,7 @@ class AlertsSettingsTile extends ConsumerWidget {
     };
 
     return PremiumTileGate(
+      access: hasAlertAccessProvider,
       icon: AppIconConstant.reminderActive,
       title: context.l10n.alertsToggleTitle,
       child: SettingsTile(

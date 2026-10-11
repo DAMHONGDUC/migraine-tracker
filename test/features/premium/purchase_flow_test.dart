@@ -8,7 +8,7 @@ import 'package:migraine_tracker/features/premium/presentation/screens/paywall_s
 import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
-import 'premium_gating_test.dart' show seedInsightData;
+import 'premium_gating_test.dart' show openPaywallFromAlertRow;
 
 /// The paywall's own CTA.
 Finder paywallCta() => find.descendant(
@@ -16,15 +16,9 @@ Finder paywallCta() => find.descendant(
   matching: find.text('Unlock'),
 );
 
-/// Opens the paywall from the Insights gate — the door every premium surface uses (CLAUDE.md: "the pitch comes first").
-Future<void> openPaywall(WidgetTester tester, PumpedApp app) async {
-  await seedInsightData(tester, app);
-  await openInsights(tester);
-
-  await tester.tap(find.text('Unlock').first);
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 400));
-}
+/// Opens the paywall from the locked alert row on Insights (CLAUDE.md: "the pitch comes first").
+Future<void> openPaywall(WidgetTester tester, PumpedApp app) =>
+    openPaywallFromAlertRow(tester);
 
 /// Rect of [finder] against the sheet's own bounds.
 bool _isFullyInside(WidgetTester tester, Finder finder, Rect bounds) {

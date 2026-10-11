@@ -11,20 +11,15 @@ import '../../../../../core/widgets/active_filter_summary.dart';
 import '../../../../../core/widgets/all_filters_pill.dart';
 import '../../../../../core/widgets/all_filters_sheet.dart';
 import '../../../../../core/widgets/charts/severity_breakdown_chart.dart';
-import '../../../../../core/widgets/free_history_banner.dart';
-import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../attacks/domain/entities/attack.dart';
-import '../../../../attacks/domain/services/attack_window.dart';
 import '../../../../attacks/providers.dart';
-import '../../../../premium/providers.dart';
 import '../../../../sync/providers.dart';
 import '../../../domain/entities/attack_filter_options.dart';
 import '../../../domain/enums/attack_filters.dart';
 import '../../../domain/enums/history_period.dart';
 import '../../../domain/enums/history_view_mode.dart';
 import '../../../domain/services/chart_analytics.dart';
-import '../../../domain/services/sample_chart_data.dart';
 import '../../../domain/services/weekly_buckets.dart';
 import '../../../providers.dart';
 import '../../controllers/attack_filters_controller.dart';
@@ -48,17 +43,10 @@ class HistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    // Three lists, and which one a view gets is the whole premium rule here:
-    // - [allAttacks] is the WHOLE record, because the list and the calendar
-    //   draw every row and `AttackTile` blurs the ones behind the window;
-    // - [rows] is that record under the filters, for the list;
-    // - [filtered] is the readable ninety days under the same filters, for the
-    //   charts — a chart averaging numbers the user cannot see is a number
-    //   they cannot check.
+    // The whole record decides the empty states; the filtered one is what the list and the charts draw. The calendar ignores the filters.
     final AsyncValue<List<Attack>> allAttacks = ref.watch(
       attacksStreamProvider,
     );
-    final AsyncValue<List<Attack>> rows = ref.watch(historyRowsProvider);
     final AsyncValue<List<Attack>> filtered = ref.watch(
       filteredAttacksProvider,
     );
@@ -114,12 +102,7 @@ class HistoryScreen extends ConsumerWidget {
             ),
           AsyncData(value: final List<Attack> all) => Builder(
             builder: (BuildContext context) {
-              final List<Attack> list = switch (rows) {
-                AsyncData(value: final List<Attack> value) => value,
-                _ => const <Attack>[],
-              };
-              // The charts stay on the readable window.
-              final List<Attack> readable = switch (filtered) {
+              final List<Attack> list = switch (filtered) {
                 AsyncData(value: final List<Attack> value) => value,
                 _ => const <Attack>[],
               };
@@ -145,7 +128,7 @@ class HistoryScreen extends ConsumerWidget {
                     bottomInset: bottomInset,
                   ),
                   _ChartView(
-                    attacks: readable,
+                    attacks: list,
                     topInset: topInset,
                     bottomInset: bottomInset,
                   ),
