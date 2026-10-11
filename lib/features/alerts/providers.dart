@@ -5,6 +5,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/constants/firebase_constants.dart';
+import '../app_config/providers.dart';
+import '../premium/providers.dart';
 import '../weather/providers.dart';
 import 'data/repositories/firebase_alert_registration_repository.dart';
 import 'domain/entities/alerts_settings.dart';
@@ -24,6 +26,12 @@ final alertRegistrationRepositoryProvider =
         ),
       ),
     );
+
+/// Whether this user may turn pressure alerts on: premium, or every account while the owner has opened them in `app_config` (`docs/PREMIUM_RULES.md`). Whether they are signed in is a separate question the alert flow asks.
+final hasAlertAccessProvider = Provider<bool>(
+  (ref) =>
+      ref.watch(hasPremiumProvider) || ref.watch(freePressureAlertsProvider),
+);
 
 /// Owns the alerts toggle + threshold (see [AlertsController]).
 final alertsControllerProvider =

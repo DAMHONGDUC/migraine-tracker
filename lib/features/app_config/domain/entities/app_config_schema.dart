@@ -19,6 +19,9 @@ abstract final class AppConfigSchema {
   /// Premium in the app whatever RevenueCat says, and targets of the pressure-alert cron.
   static const String premiumEmailsField = 'premium_emails';
 
+  /// Pressure alerts for every signed-in account, not only premium. Explicit `true` only; the alert cron reads it too.
+  static const String freePressureAlertsField = 'free_pressure_alerts';
+
   /// Addresses that see the Dev group in Settings on a prod build. snake_case, like every Firestore field — see `docs/rules/DATA_AND_SYNC.md`.
   static const String devModeEmailsField = 'dev_mode_emails';
 

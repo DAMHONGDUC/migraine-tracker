@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { premiumEmailsFrom } from "../src/core/appConfig";
+import {
+  freePressureAlertsFrom,
+  premiumEmailsFrom,
+} from "../src/core/appConfig";
 
 describe("premiumEmailsFrom", () => {
   it("returns nothing for an absent or empty list", () => {
@@ -33,5 +36,19 @@ describe("premiumEmailsFrom", () => {
     expect(
       premiumEmailsFrom(["   ", 42, null, "owner@example.com"]),
     ).toEqual(["owner@example.com"]);
+  });
+});
+
+describe("freePressureAlertsFrom", () => {
+  it("is on only for the bool true", () => {
+    expect(freePressureAlertsFrom(true)).toBe(true);
+  });
+
+  it("is off for absent, false and anything typed loosely", () => {
+    // Opening alerts spends quota on every account; a typo must not.
+    expect(freePressureAlertsFrom(undefined)).toBe(false);
+    expect(freePressureAlertsFrom(false)).toBe(false);
+    expect(freePressureAlertsFrom("true")).toBe(false);
+    expect(freePressureAlertsFrom(1)).toBe(false);
   });
 });

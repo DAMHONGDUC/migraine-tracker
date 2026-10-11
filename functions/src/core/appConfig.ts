@@ -15,6 +15,9 @@ export const APP_CONFIG_DOCUMENT = "current";
 /** Premium in the app whatever RevenueCat says, and targets of the pressure-alert cron. */
 export const PREMIUM_EMAILS_FIELD = "premium_emails";
 
+/** `true`: pressure alerts go to every registered account, not only premium. The app reads it too, to show the controls. */
+export const FREE_PRESSURE_ALERTS_FIELD = "free_pressure_alerts";
+
 /** Shows the Dev group in Settings. Read by the app only — no function branches on it. */
 export const DEV_MODE_EMAILS_FIELD = "dev_mode_emails";
 
@@ -46,4 +49,14 @@ export function premiumEmailsFrom(value: unknown): string[] {
   }
 
   return [...emails];
+}
+
+/**
+ * Whether the owner has opened pressure alerts to every account.
+ *
+ * Explicit `true` only — `"true"`, `1` and absent are all off. Opening it spends
+ * a WeatherKit call per cell on every account, so a typo must not be able to.
+ */
+export function freePressureAlertsFrom(value: unknown): boolean {
+  return value === true;
 }

@@ -18,6 +18,7 @@ class AppConfig {
   AppConfig({
     this.forceUpdate,
     this.errorView,
+    this.freePressureAlerts = false,
     Set<String> premiumEmails = const <String>{},
     Set<String> devModeEmails = const <String>{},
     Set<String> blockedEmails = const <String>{},
@@ -49,6 +50,9 @@ class AppConfig {
   /// say. Null is the normal state: this is a field the owner has to write,
   /// like every other one on this document.
   final ErrorViewConfig? errorView;
+
+  /// Pressure alerts open to every signed-in account rather than premium only. The alert cron reads the same field.
+  final bool freePressureAlerts;
 
   /// Premium in the app whatever RevenueCat says, and a target of the pressure-alert cron.
   final Set<String> premiumEmails;
@@ -85,6 +89,7 @@ class AppConfig {
       other is AppConfig &&
           other.forceUpdate == forceUpdate &&
           other.errorView == errorView &&
+          other.freePressureAlerts == freePressureAlerts &&
           _same(other.premiumEmails, premiumEmails) &&
           _same(other.devModeEmails, devModeEmails) &&
           _same(other.blockedEmails, blockedEmails);
@@ -93,6 +98,7 @@ class AppConfig {
   int get hashCode => Object.hash(
     forceUpdate,
     errorView,
+    freePressureAlerts,
     Object.hashAllUnordered(premiumEmails),
     Object.hashAllUnordered(devModeEmails),
     Object.hashAllUnordered(blockedEmails),

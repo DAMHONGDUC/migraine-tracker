@@ -20,6 +20,7 @@
     "subtitle_2": "Everything you have logged is safe on this device.",
     "type": "warning"
   },
+  "free_pressure_alerts": false,
   "premium_emails": ["review@baroease.app", "owner@baroease.app"],
   "dev_mode_emails": ["owner@baroease.app"],
   "blocked_emails": ["banned@example.com"]

@@ -17,6 +17,8 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import {
   APP_CONFIG_COLLECTION,
   APP_CONFIG_DOCUMENT,
+  FREE_PRESSURE_ALERTS_FIELD,
+  freePressureAlertsFrom,
   PREMIUM_EMAILS_FIELD,
   premiumEmailsFrom,
 } from "./core/appConfig";
@@ -62,7 +64,7 @@ const revenuecatAuth = defineSecret("REVENUECAT_WEBHOOK_AUTH");
 /** Firestore caps a batch at 500 writes. */
 const BATCH_LIMIT = 500;
 
-/** Every 3h: group alert-enabled premium users by geohash cell, fetch ONE forecast per cell, push to users whose personal threshold is exceeded. */
+/** Every 3h: group alert-enabled users (premium, or everyone while `free_pressure_alerts` is on) by geohash cell, fetch ONE forecast per cell, push to users whose personal threshold is exceeded. */
 export const pressureAlertJob = onSchedule(
   {
     schedule: "every 3 hours",
@@ -147,7 +149,18 @@ async function runAlertPass(
     .get();
   const config = configDoc.data();
 
-  const emails = premiumEmailsFrom(config?.[PREMIUM_EMAILS_FIELD]);
+  // The owner's switch: on, every registered account is a target, so the
+  // premium query and the allow-list below have nothing to add.
+  const freeAlerts = freePressureAlertsFrom(
+    config?.[FREE_PRESSURE_ALERTS_FIELD],
+  );
+  const emails = freeAlerts
+    ? []
+    : premiumEmailsFrom(config?.[PREMIUM_EMAILS_FIELD]);
+  logger.info("pressureAlertJob targets", {
+    freeAlerts,
+    allowListed: emails.length,
+  });
 
   // The webhook is the only writer of `premium`, so an allow-listed account never carries it — without this the cron is the one surface that disagrees with the app.
   //
@@ -165,10 +178,11 @@ async function runAlertPass(
     }
   }
 
-  const subscribers = await db
-    .collection("users")
-    .where("premium", "==", true)
-    .get();
+  // Registration writes `fcmToken` and an anonymous session cannot register,
+  // so "has a token" is every account that turned alerts on.
+  const subscribers = freeAlerts
+    ? await db.collection("users").where("fcmToken", "!=", null).get()
+    : await db.collection("users").where("premium", "==", true).get();
   const docs: { id: string; data: DocumentData }[] = subscribers.docs.map(
     (doc) => ({ id: doc.id, data: doc.data() }),
   );

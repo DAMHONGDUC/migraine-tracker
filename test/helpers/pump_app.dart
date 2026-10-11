@@ -776,6 +776,7 @@ Future<PumpedApp> pumpApp(
       blockedEmails: baseConfig.blockedEmails,
       forceUpdate: appUpdate ?? baseConfig.forceUpdate,
       errorView: baseConfig.errorView,
+      freePressureAlerts: baseConfig.freePressureAlerts,
     ),
   );
   final FakeStoreLauncher storeLauncher = FakeStoreLauncher();

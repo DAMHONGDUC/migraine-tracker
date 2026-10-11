@@ -40,6 +40,9 @@ class FirestoreAppConfigRepository implements AppConfigRepository {
           if (!snap.exists || data == null) return AppConfig.empty;
 
           final AppConfig config = AppConfig(
+            // Explicit true only: this spends WeatherKit quota on every account, so a typo must not.
+            freePressureAlerts:
+                data[AppConfigSchema.freePressureAlertsField] == true,
             premiumEmails: _emails(data[AppConfigSchema.premiumEmailsField]),
             devModeEmails: _emails(data[AppConfigSchema.devModeEmailsField]),
             blockedEmails: _emails(data[AppConfigSchema.blockedEmailsField]),
@@ -53,6 +56,7 @@ class FirestoreAppConfigRepository implements AppConfigRepository {
             LogTagConstant.appConfig,
             'App config read',
             <String, Object?>{
+              'freePressureAlerts': config.freePressureAlerts,
               'premiumEmails': config.premiumEmails.length,
               'devModeEmails': config.devModeEmails.length,
               'blockedEmails': config.blockedEmails.length,

@@ -59,6 +59,11 @@ final hasGrantedPremiumProvider = Provider<bool>(
       ref.watch(_configProvider).isPremium(ref.watch(_configEmailProvider)),
 );
 
+/// Pressure alerts open to every account, not only premium. Not keyed on the address; the push chain still needs an account. False while the read is in flight or after it failed.
+final freePressureAlertsProvider = Provider<bool>(
+  (ref) => ref.watch(_configProvider).freePressureAlerts,
+);
+
 /// Whether the signed-in address is locked out. False for an anonymous session, for a read still in flight, and for a read that failed — a list is something an address has to be put on, and a failed read must not lock somebody out of an app whose data is on their own device.
 final isAccountBlockedProvider = Provider<bool>(
   (ref) =>
