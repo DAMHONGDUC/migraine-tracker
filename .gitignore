@@ -92,3 +92,6 @@ lib/l10n/gen/
 pubspec_overrides.yaml
 # Widget Preview related
 .widget_preview/
+
+# Local tool files. Never committed.
+tooling/**
