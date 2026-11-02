@@ -107,7 +107,7 @@ Forecast premium → free ("seeing the pressure you live in is the app's own
 promise") → premium again, once `WeatherCard` carried the free weather. The
 promise is now kept by the weather card; the pressure chart is the paid reading.
 **Do not flip it a fourth time without the owner saying so.**
-`docs/PREMIUM_RULES.md` is the authority.
+`docs/rules/PREMIUM_RULES.md` is the authority.
 
 **Flipped by the owner, 2026-10-10: everything free except push alerts and
 export.** Gone with it: the 90-day history window (and its blur, banner and
@@ -118,7 +118,7 @@ they can be opened to everyone without a build.
 
 ## A lifetime purchase alongside the two subscriptions
 
-`PLAN.md` §3 sold a $44.99 non-consumable, on the reasoning that chronic-illness
+`docs/plans/PLAN.md` §3 sold a $44.99 non-consumable, on the reasoning that chronic-illness
 communities prefer one-time purchases. Dropped 2026-08-29 (owner's call): the
 app's own cost recurs forever — a WeatherKit call per alert, the pressure cron,
 Firestore — so the heaviest users, the ones the lifetime tier attracts, are the
@@ -139,7 +139,7 @@ in to continue" CTA with the prices hidden behind it — the reasoning being tha
 a subscription needs something that survives a reinstall. App Store review
 rejected it under 5.1.1(v) (submission 1.0(20)): the content is not
 account-based, so registration cannot be required to buy it. A reinstall is what
-Restore is for. `docs/PREMIUM_RULES.md` is the rule.
+Restore is for. `docs/rules/PREMIUM_RULES.md` is the rule.
 
 ## A "Not now" beside the location explainer
 
@@ -200,14 +200,14 @@ which exists so an attack is not lost with the phone.
 
 ## An ML model behind the 7-day risk score
 
-`PLAN.md` rules out attack prediction, and the roadmap still carries a risk
+`docs/plans/PLAN.md` rules out attack prediction, and the roadmap still carries a risk
 score. Both hold, because the score is deterministic weights over signals the
 app already stores — pressure drop against the user's own threshold, cycle
 window, sleep debt, recent frequency — and every card shows the numbers that
 produced it (6.8 hPa of an 8.0 threshold → 34 of 40). A model would score the
 same day 89 and be unable to say why, which is the thing a health app cannot
 afford: the user must be able to disagree with it. No training data leaves the
-device because there is no training. Detail in `docs/ROADMAP.md`.
+device because there is no training. Detail in `docs/plans/ROADMAP.md`.
 
 ## HIT-6 beside MIDAS in the doctor report
 
@@ -294,7 +294,7 @@ have reintroduced the drift the rule exists to prevent.
 
 The cost was real and paid up front: the SDK moved from 3.44.5 to 3.47.2 for
 Flutter GPU, and `env_assets/*-Info.plist` grew a key. Detail in
-`docs/HEAD_3D_PLAN.md`.
+`docs/plans/HEAD_3D_PLAN.md`.
 
 ## Deleting the flat head diagram once the model shipped
 

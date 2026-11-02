@@ -28,7 +28,7 @@ Every feature except sync and alerts must work without an account.
   the call throws `admin-restricted-operation`, the guard swallows it, and
   weather is silently dead on every fresh install.
 - **An account is NOT required to buy premium** (App Store 5.1.1(v), and
-  `docs/PREMIUM_RULES.md`): the purchase sits on RevenueCat's anonymous id, and
+  `docs/rules/PREMIUM_RULES.md`): the purchase sits on RevenueCat's anonymous id, and
   `PurchaseIdentity` moves it onto the account at the first sign-in — binding
   only when `isSignedIn`, because an anonymous uid has nothing durable to carry
   it. **Premium is required for alerts**, though. Registration refuses a
@@ -68,7 +68,7 @@ keeps the Keychain across a delete, so the Firebase session came back and the
 user was still signed in on what they thought was a clean install; dev and prod
 share one bundle id, so installing either over the other leaves the new binary
 reading the old one's session and cached documents. `SdFreshInstall.run` answers
-both — it lives in `system_design` (`core/common/`), over three things this app
+both — it lives in `system_design_core` (`core/common/`), over three things this app
 supplies: `PrefsInstallStore` (`SdInstallScopedStore`, deleted with the app),
 `SecureDeviceStore` (`SdDeviceScopedStore`, survives it) and `AppFreshInstall`
 (`SdFreshInstallHost` — the sign-out and the Firestore cache clear).
@@ -273,7 +273,7 @@ size.**
 
 ## 17. The privacy policy is two files saying one thing
 
-`docs/privacy/PRIVACY_POLICY.md` is the readable source, `docs/privacy/privacy.json`
+`docs/store/PRIVACY_POLICY.md` is the readable source, `docs/store/privacy.json`
 is what the published site renders. A change that moves data updates both in
 the same change, effective/last-updated dates included.
 

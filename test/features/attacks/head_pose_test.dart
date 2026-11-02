@@ -10,7 +10,7 @@ import 'package:vector_math/vector_math.dart' as vm;
 /// screen side that puts the user's left on.
 ///
 /// The camera maths below is the same `flutter_scene` code the widget runs, and
-/// it needs no GPU: this is how the claim in `docs/HEAD_3D_PLAN.md` is checked
+/// it needs no GPU: this is how the claim in `docs/plans/HEAD_3D_PLAN.md` is checked
 /// rather than asserted.
 void main() {
   group('the angle', () {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_error.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -117,6 +117,8 @@ void main() {
 
       expect(app.auth.signInCalls, [AuthProviderKind.google]);
       // Settings shows the account row (which opens the account screen), never the email itself.
+      // Signed in, the Developer group sits above it, so it is below the fold.
+      await scrollIntoView(tester, find.text('Account'));
       expect(find.text('Account'), findsOneWidget);
       expect(find.text('tester@example.com'), findsNothing);
 
@@ -130,6 +132,7 @@ void main() {
       await tapVisible(tester, find.text('Sign in with Apple'));
 
       expect(app.auth.signInCalls, [AuthProviderKind.apple]);
+      await scrollIntoView(tester, find.text('Account'));
       expect(find.text('Account'), findsOneWidget);
 
       await finishTest(tester);
@@ -175,6 +178,7 @@ void main() {
       await openSettings(tester);
 
       // The row says 'Account' and opens the account screen; Settings never puts the email on screen.
+      await scrollIntoView(tester, find.text('Account'));
       expect(find.text('Account'), findsOneWidget);
       expect(find.text('tester@example.com'), findsNothing);
       expect(find.text('Sign in'), findsNothing);

@@ -5,7 +5,7 @@ import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.da
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/exertion_level_picker.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../helpers/pump_app.dart';
 

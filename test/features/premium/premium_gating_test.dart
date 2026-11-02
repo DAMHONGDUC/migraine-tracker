@@ -16,7 +16,7 @@ import 'package:migraine_tracker/features/insights/presentation/widgets/pressure
 import 'package:migraine_tracker/features/insights/presentation/widgets/trigger_verdict_body.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -97,7 +97,7 @@ void main() {
     await finishTest(tester);
   });
 
-  // Everything but alerts and export is free (`docs/PREMIUM_RULES.md`).
+  // Everything but alerts and export is free (`docs/rules/PREMIUM_RULES.md`).
   group('free user', () {
     testWidgets('sees the correlation, the verdict and the history chart', (
       tester,

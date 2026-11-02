@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_scene/scene.dart' show Node;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../../../core/widgets/app_loading_dots.dart';
 import '../../domain/enums/head_region.dart';

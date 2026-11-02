@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 import '../../domain/entities/encrypted_payload.dart';
 import '../../domain/entities/encrypted_record.dart';

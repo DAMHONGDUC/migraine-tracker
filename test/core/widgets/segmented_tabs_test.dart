@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_theme.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 /// The segmented control's tap targets.
 void main() {

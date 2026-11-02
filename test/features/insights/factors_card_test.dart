@@ -5,7 +5,7 @@ import 'package:migraine_tracker/features/daily_log/domain/enums/daily_factor.da
 
 import '../../helpers/pump_app.dart';
 
-/// The Factors tab is free (`docs/PREMIUM_RULES.md`): a free user gets the map
+/// The Factors tab is free (`docs/rules/PREMIUM_RULES.md`): a free user gets the map
 /// itself, never a pitch.
 void main() {
   DateTime dayOf(int daysAgo) {

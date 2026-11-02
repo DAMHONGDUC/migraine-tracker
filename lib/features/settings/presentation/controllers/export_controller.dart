@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
@@ -83,7 +83,7 @@ class ExportController {
           .read(exportSharerProvider)
           .shareFile(path: record.filePath, mimeType: record.kind.mimeType);
 
-      // The doctor report leaving the app is the value moment `PLAN.md` names — and the share sheet closing is the pause to ask in.
+      // The doctor report leaving the app is the value moment `docs/plans/PLAN.md` names — and the share sheet closing is the pause to ask in.
       if (record.kind == ExportKind.pdf) {
         unawaited(
           _ref.read(reviewPromptControllerProvider).onDoctorReportShared(),

@@ -1,4 +1,4 @@
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/geo_point.dart';

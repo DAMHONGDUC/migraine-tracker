@@ -1,5 +1,5 @@
 import 'package:in_app_review/in_app_review.dart';
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/services/review_prompter.dart';

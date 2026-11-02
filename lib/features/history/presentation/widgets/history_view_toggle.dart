@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_icon_constant.dart';

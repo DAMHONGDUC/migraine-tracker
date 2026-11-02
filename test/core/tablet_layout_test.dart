@@ -8,7 +8,7 @@ import 'package:migraine_tracker/features/history/presentation/widgets/attack_ti
 import 'package:migraine_tracker/features/insights/presentation/screens/insights_screen/insights_screen.dart';
 import 'package:migraine_tracker/features/medications/presentation/screens/medications_screen/medications_screen.dart';
 import 'package:migraine_tracker/features/settings/presentation/screens/settings_screen/settings_screen.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../helpers/pump_app.dart';
 import 'screen_overflow_test.dart' show expectNoOverflow, seedHistory;
@@ -570,7 +570,13 @@ void main() {
 
         await expectNoOverflow(tester, 'Dashboard, collapsed ($name)');
 
+        // A collapsed panel is not built, so History is reached the user's
+        // way: open the panel, pick the tab, close it again.
+        await tester.tap(toggle());
+        await settleFrames(tester);
         await openHistory(tester);
+        await tester.tap(toggle());
+        await settleFrames(tester);
         await expectNoOverflow(tester, 'History list, collapsed ($name)');
 
         await finishTest(tester);

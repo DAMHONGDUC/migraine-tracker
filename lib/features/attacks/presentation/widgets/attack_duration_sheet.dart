@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../../../core/constants/attack_duration_constant.dart';
 import '../../../../core/constants/log_flow_constant.dart';

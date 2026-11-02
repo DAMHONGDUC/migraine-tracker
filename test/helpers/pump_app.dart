@@ -59,7 +59,7 @@ import 'package:migraine_tracker/features/weather/domain/entities/weather_report
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/providers.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import 'alert_fakes.dart';
 import 'attack_fakes.dart';
@@ -433,7 +433,7 @@ class FakePurchaseRepository implements PurchaseRepository {
 
   final FakePremiumRepository _premium;
 
-  /// The three plans PLAN.md sells, at their listed prices.
+  /// The three plans docs/plans/PLAN.md sells, at their listed prices.
   List<PremiumOffer> availableOffers = const <PremiumOffer>[
     PremiumOffer(
       id: r'$rc_monthly',

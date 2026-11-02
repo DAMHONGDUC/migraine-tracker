@@ -9,7 +9,7 @@ import 'package:migraine_tracker/features/medications/domain/entities/medication
 
 import '../../helpers/pump_app.dart';
 
-/// The free plan has no record limits (`docs/PREMIUM_RULES.md`).
+/// The free plan has no record limits (`docs/rules/PREMIUM_RULES.md`).
 Future<void> seedAttacks(PumpedApp app, int count) async {
   final DriftAttackRepository repo = DriftAttackRepository(app.db);
 

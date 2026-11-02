@@ -8,7 +8,7 @@ import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
 import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -173,9 +173,9 @@ void main() {
       );
       await openSleepInsight(tester);
 
-      // The analysis is free (`docs/PREMIUM_RULES.md`): the card is built, not pitched.
+      // The analysis is free (`docs/rules/PREMIUM_RULES.md`): the card is built, not pitched.
       expect(find.text('Sleep & attacks'), findsOneWidget);
-      // The reading itself is free (`docs/PREMIUM_RULES.md`): it answers "did connecting Apple Health work".
+      // The reading itself is free (`docs/rules/PREMIUM_RULES.md`): it answers "did connecting Apple Health work".
       expect(app.health.sleepReads, greaterThan(0));
 
       await finishTest(tester);

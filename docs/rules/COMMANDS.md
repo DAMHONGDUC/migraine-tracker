@@ -7,6 +7,7 @@ running, building, seeding or deploying anything.
 
 | Target | Script |
 |---|---|
+| `pull-all` / `push-all [DRY_RUN=1]` | `common/pull_latest.sh` / `common/push_current.sh` — outside `flutter/`, shared by every platform |
 | `set-up` / `deep-set-up` | `set_up.sh` / `set_up.sh --deep` |
 | `gen` / `analyze` | `generate_code.sh` / `analyze_code.sh` |
 | `test TEST=<path>` | `run_tests.sh <path>` |
@@ -57,6 +58,50 @@ packages on the first build.
   repo's CI with nothing here having changed. `branch = main` in `.gitmodules`
   does not do this by itself — plain `actions/checkout` still takes the pinned
   gitlink, and only `--remote` reads that line.
+
+### `make pull-all`
+
+Brings the app and every submodule (nested ones too) to the head of its main
+branch, fast-forward only. It never commits and never pushes; one line per repo,
+`<path>  <branch> <from> → <to>`.
+
+| Repo is | It does |
+|---|---|
+| on its main branch | fast-forwards it: `main cb67a84 → d00d123` |
+| on another branch | leaves the checkout, moves only the local `main` ref: `on chore/x; main 5d668da → 9f0c1e2, not switched` |
+| a detached submodule | checks out its branch, then fast-forwards — only when that branch already holds the detached commit |
+| ahead of `origin` | nothing to pull: `main ae7991e, already the latest, 1 ahead of origin` |
+| diverged from `origin` | refuses — merge or rebase by hand |
+| dirty | the app refuses only when the pull touches a changed file (a dirty `ios/Runner/Info.plist` does not block a pull that leaves it alone); a submodule refuses on any change |
+
+- **Main branch**: the app's is `origin`'s `main`, else `master`; a
+  submodule's is its `.gitmodules` `branch`, else `main`, else `master`.
+- **One refusal does not stop the rest**: every other repo still moves, then
+  the command exits 1 naming how many were left as they were.
+- **A moved submodule shows as modified in the app** — commit that gitlink
+  deliberately, as with `set-up`.
+
+### `make push-all`
+
+Pushes every submodule, nested ones too, then the app, each on the branch it
+has checked out, to `origin`. **The owner's command: a session never runs it**
+(CLAUDE.md, "commit freely; never push"). It never forces and never commits;
+`DRY_RUN=1` sends nothing.
+
+| Repo is | It does |
+|---|---|
+| ahead of `origin` on its branch | pushes it: `main ae7991e → 169e788 (1 commit(s))` |
+| on a branch `origin` does not have | creates it there and sets the upstream: `feature/x new on origin at f995f9a` |
+| level with or behind `origin` | nothing to push: `main 561955b, already on origin` |
+| missing commits `origin` has | refuses — `make pull-all` or rebase first; never forced |
+| a detached submodule | fine when `origin` already holds the commit, refused otherwise |
+| recording a submodule commit no branch on `origin` holds | refused by git's own `--recurse-submodules=check` |
+
+- **Submodules first, deepest first**, so the app never records a gitlink
+  `origin` cannot resolve.
+- **Uncommitted files are named, not pushed**: a dirty `ios/Runner/Info.plist`
+  shows as `1 uncommitted file(s) not pushed` on the app's line.
+- **One refusal does not stop the rest**; the command exits 1 at the end.
 
 ### `make env-dev` / `env-prod`
 
@@ -399,7 +444,7 @@ first, check the corner at full size, then run `make app-icon`.
   so a missing original fails at the start rather than halfway.
 - **The launch icons are rounded here and nowhere else.** A storyboard image
   view cannot clip, so the mask has to be in the alpha —
-  `docs/setup/APP_ICON.md` has the reasoning and the per-file commands.
+  `docs/guides/APP_ICON.md` has the reasoning and the per-file commands.
 
 ## Firebase
 
@@ -428,7 +473,7 @@ optional `ONLY=rules` or `ONLY=functions` to do half of it:
   still be the SAME project, so `make deploy-dev` can be a production deploy
   under another name — the script prints the id and warns when the two aliases
   match, which is what makes a wrong destination visible. Splitting the projects
-  is `docs/setup/FIREBASE_PROJECT.md`; the warning disappears once the aliases
+  is `docs/guides/FIREBASE_PROJECT.md`; the warning disappears once the aliases
   differ.
 - **Both `npm run build` and `npm test` are optional** (`has_npm_script` in
   `flutter/lib/common.sh`, which asks `npm pkg get`). These scripts are shared with

@@ -16,7 +16,7 @@ import 'package:migraine_tracker/features/attacks/presentation/widgets/head_scen
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_scene_store.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_viewport.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
 void main() {

@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/analytics/app_analytics.dart';
 import 'package:migraine_tracker/core/constants/log_tag_constant.dart';
 import 'package:migraine_tracker/core/logging/crash_reporter.dart';
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 /// Both helpers must be inert until `main` initializes them.
 void main() {

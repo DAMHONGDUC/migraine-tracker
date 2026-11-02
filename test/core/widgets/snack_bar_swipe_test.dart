@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_theme.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 /// A snackbar leaves on a swipe back towards the edge it came from — up for a
 /// top card, down for a bottom one — or on a swipe sideways either way, and

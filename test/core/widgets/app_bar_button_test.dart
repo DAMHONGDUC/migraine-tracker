@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 /// Verifies the app-bar glyph remains easy to hit during a migraine.
 void main() {

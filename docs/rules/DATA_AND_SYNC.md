@@ -42,7 +42,7 @@ is also what keeps a legacy bare-id document editable.
   Run it after the rule is live and old builds are gone, or an old build
   recreates a bare id behind it.
 
-**Every id is made by `SdId` (`package:system_design/common.dart`)** — owner's
+**Every id is made by `SdId` (`package:system_design_core/common.dart`)** — owner's
 rule, 2026-09-24:
 
 | Id | Call | Example |

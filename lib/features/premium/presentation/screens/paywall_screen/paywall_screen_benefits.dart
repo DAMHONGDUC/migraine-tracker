@@ -10,7 +10,7 @@ class _Benefits extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
-    // Only what Premium adds — everything else is free (`docs/PREMIUM_RULES.md`).
+    // Only what Premium adds — everything else is free (`docs/rules/PREMIUM_RULES.md`).
     final List<(IconData, String)> benefits = <(IconData, String)>[
       (AppIconConstant.reminderActive, l10n.paywallBenefitAlerts),
       (AppIconConstant.export, l10n.paywallBenefitExport),

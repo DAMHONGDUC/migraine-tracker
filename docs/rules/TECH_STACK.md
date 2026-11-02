@@ -8,7 +8,7 @@ that carry real constraints.
 Owner's call: one source for the whole app, no second provider anywhere.
 
 - **The pressure-alert cron is included, and Open-Meteo goes with it.** Owner's
-  rule, stated after a note in `docs/REMAINING_WORK.md` claimed the cron would
+  rule, stated after a note in `docs/status/REMAINING_WORK.md` claimed the cron would
   stay on Open-Meteo permanently — that note was wrong.
   `functions/src/weather/openMeteo.ts` is replaced, not kept: two providers
   would let the alert that wakes a user at 3am disagree with the forecast shown

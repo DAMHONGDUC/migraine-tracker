@@ -7,11 +7,11 @@ App Store: [https://apps.apple.com/us/app/baroease-migraine-tracker/id6797143362
 
 | Document | Use it for |
 |---|---|
-| [`PLAN.md`](PLAN.md) | Product scope and architecture |
+| [`docs/plans/PLAN.md`](docs/plans/PLAN.md) | Product scope and architecture |
 | [`AGENTS.md`](AGENTS.md) | Repository rules and document routing |
 | [`docs/README.md`](docs/README.md) | Documentation index |
-| [`docs/DONE_WORK.md`](docs/DONE_WORK.md) | What is built |
-| [`docs/REMAINING_WORK.md`](docs/REMAINING_WORK.md) | What still blocks release |
+| [`docs/status/DONE_WORK.md`](docs/status/DONE_WORK.md) | What is built |
+| [`docs/status/REMAINING_WORK.md`](docs/status/REMAINING_WORK.md) | What still blocks release |
 
 ## Requirements
 
@@ -116,7 +116,7 @@ See [`docs/release/PIPELINE.md`](docs/release/PIPELINE.md) for the flow and
 | `lib/features/` | Feature-based app code |
 | `lib/l10n/` | Seven ARB localization files |
 | `functions/` | Firebase Cloud Functions |
-| `packages/flutter-system-design-kit/` | Design-system git submodule (Dart package `system_design`) |
+| `packages/flutter-system-design-kit/` | Design-system git submodule; the app depends on its `system_design_core` and `system_design_v2` packages |
 | `packages/script-tools/` | Shared scripts submodule; `flutter/` is what `make` runs |
 | `test/features/` | Tests mirroring app features |
 
@@ -151,7 +151,7 @@ The iOS and Android identifiers intentionally differ. Do not normalize them.
 
 iOS deletes the app's container when the app is deleted, but not its Keychain —
 and dev and prod share one bundle id, so either can be installed over the other.
-`SdFreshInstall` (`system_design`, `core/common/`) tells those launches apart
+`SdFreshInstall` (`system_design_core`, `core/common/`) tells those launches apart
 and takes the device back to a fresh install when it has to; the app supplies
 the two stores and the two vendor calls — `PrefsInstallStore`,
 `SecureDeviceStore` (`core/storage/`) and `AppFreshInstall` (`core/env/`).
@@ -232,7 +232,7 @@ Two things sit outside the chain: an address on `app_config/current`'s
 the owner's own), and no account is ever required to buy, restore or use
 premium (App Store 5.1.1(v)).
 
-Numbers and gates: [`docs/PREMIUM_RULES.md`](docs/PREMIUM_RULES.md). Surface
+Numbers and gates: [`docs/rules/PREMIUM_RULES.md`](docs/rules/PREMIUM_RULES.md). Surface
 behavior: [`lib/features/premium/CLAUDE.md`](lib/features/premium/CLAUDE.md).
 
 ## The pressure alert cron
@@ -293,3 +293,19 @@ flowchart TD
 - **The push carries English text and the numbers.** The app renders its own
   localized row from the `data` payload; only `dropHpa`, `eventId` and `at`
   actually travel.
+
+### Combo commands
+
+Dev first, then prod. `&&` stops at the first step that fails.
+
+Backend and iOS:
+
+```sh
+make deploy-be-dev && make release-ios-dev && make deploy-be-prod && make release-ios-prod
+```
+
+Android:
+
+```sh
+make release-android-dev && make release-android-prod
+```

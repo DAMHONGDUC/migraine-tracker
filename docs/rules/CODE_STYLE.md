@@ -83,7 +83,7 @@ line in with what was sent, a line out with what came back.
     wrapper (an `SdLogger.guard(action)` combinator hides the flow), never
     `print(...)`. Controllers that only hold state (`HistoryController`,
     `MedicationFiltersController`) have nothing to catch and stay bare.
-- **`SdLogger` (`package:system_design/common.dart`) is the only logger.**
+- **`SdLogger` (`package:system_design_core/common.dart`) is the only logger.**
   `AppLogger` is gone: two loggers meant two consoles to grep and two places
   every rule had to be restated. Every call names its flow from
   `LogTagConstant` (`core/constants/`), never a string typed at the call site —
@@ -110,7 +110,7 @@ line in with what was sent, a line out with what came back.
 
 ## UI primitives
 
-- **Snackbars: `SdSnackBarUtilsV2.success/error/info`** (`system_design`), never
+- **Snackbars: `SdSnackBarUtilsV2.success/error/info`** (`system_design_v2`), never
   raw `ScaffoldMessenger.showSnackBar`. It draws the app's card (dark surface,
   accent icon and hairline edge, never a full-bleed fill), one message at a time.
   Pass a finished localized string; the kind picks the icon, and the icon always

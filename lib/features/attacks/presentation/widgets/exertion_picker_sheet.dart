@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../domain/enums/exertion_level.dart';

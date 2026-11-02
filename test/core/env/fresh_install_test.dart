@@ -6,7 +6,7 @@ import 'package:migraine_tracker/core/storage/prefs_install_store.dart';
 import 'package:migraine_tracker/core/storage/secure_store.dart';
 import 'package:migraine_tracker/features/splash/providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 /// The key the old guard wrote, and the only thing an install shipped before
 /// the stamp has in `shared_preferences`.

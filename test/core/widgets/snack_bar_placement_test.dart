@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_theme.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 /// A bottom snackbar draws into the root overlay, above everything — so on a tab screen it has to be told the nav pill is down there, or it lands on it.
 void main() {

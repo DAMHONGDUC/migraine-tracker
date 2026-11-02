@@ -81,7 +81,7 @@ Authored source + licensed/reproducible GLB; reliable rotate/zoom/multi-region s
       },
       "cited_path_manifest": [
         {
-          "path": "PLAN.md",
+          "path": "docs/plans/PLAN.md",
           "object_kind": {
             "head": "regular",
             "index": "regular",
@@ -113,7 +113,7 @@ Authored source + licensed/reproducible GLB; reliable rotate/zoom/multi-region s
           "untracked_digest": "absent"
         },
         {
-          "path": "docs/HEAD_3D_PLAN.md",
+          "path": "docs/plans/HEAD_3D_PLAN.md",
           "object_kind": {
             "head": "regular",
             "index": "regular",
@@ -541,7 +541,7 @@ Authored source + licensed/reproducible GLB; reliable rotate/zoom/multi-region s
         "intended_change": "Seven actual locale files: labels, tooltips, zoom status and gesture hint; regenerate through existing localization workflow."
       },
       {
-        "file": "docs/HEAD_3D_PLAN.md",
+        "file": "docs/plans/HEAD_3D_PLAN.md",
         "symbols": [],
         "intended_change": "Update historical procedural-only/fixed-camera direction after implementation decisions land."
       },
