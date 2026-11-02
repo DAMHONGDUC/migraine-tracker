@@ -6,6 +6,8 @@
 
 # BaroEase — App Store Listing (draft)
 
+Paste-ready fields: [`MARKETING_INFO.md`](MARKETING_INFO.md). This file keeps the reasoning behind them.
+
 ## App name (max 30)
 `BaroEase: Migraine Tracker`  *(26)*
 
@@ -52,17 +54,14 @@ uploaded unless you choose to sign in and sync. No ads. No tracking. Coarse
 
 **Premium unlocks**
 • Pressure-drop push alerts
-• 48-hour pressure forecast chart
-• Trigger correlation analysis
-• PDF doctor report
-• Apple Health sleep correlation
+• Export: JSON, CSV and a PDF doctor report
 
-The free plan covers 40 logged attacks, 5 medications and 2 reminders.
-Premium lifts those limits and is available monthly ($4.99) or yearly ($29.99,
-with a 7-day free trial). Prices may vary by region.
+Everything else is free, with no record limits. Premium is available monthly
+($4.99), yearly ($29.99, with a 7-day free trial) or as a one-time lifetime
+purchase. Prices may vary by region.
 
 **Full control**
-Export everything as JSON or CSV, or delete all your data — including your
+Delete all your data — including your
 account — from Settings, any time.
 
 **Subscription terms**
@@ -116,6 +115,7 @@ auto-renewable subscriptions with no Terms of Use link.
 |---------|------|-------|
 | Premium Monthly | Auto-renewable subscription | $4.99/mo |
 | Premium Yearly | Auto-renewable subscription (7-day free trial) | $29.99/yr |
+| Premium Lifetime | Non-consumable | Store price |
 
 ## App Privacy nutrition label (answers to draft in App Store Connect)
 
