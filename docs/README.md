@@ -20,7 +20,7 @@ Read only the document that matches the task; `CLAUDE.md` routes by trigger.
 | [`status/`](status/) | What is built, what is left, verification records |
 | [`guides/`](guides/) | Apple, Firebase, auth, WeatherKit, icon and task-runner setup; the bootstrap prompt |
 | [`release/`](release/) | TestFlight and App Store submission, encryption, review replies, credential names |
-| [`store/`](store/) | Store listing, App Store Connect fields, privacy policy and `privacy.json` |
+| [`store/`](store/) | `MARKETING_INFO.md` (every store, YouTube and Upwork field to paste), listing draft, privacy policy and `privacy.json` |
 | [`rules/`](rules/) | Engineering rules, premium rules and decisions |
 
 ## Special files
