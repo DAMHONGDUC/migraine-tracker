@@ -6,8 +6,8 @@
 #      version satisfies both. The only way through is pinning `drift_dev`
 #      exactly: a task runner dictating a codegen version. Melos 6 resolves
 #      against `drift_dev: ^2.34.0` untouched.
-#   2. It requires `resolution: workspace` inside packages/system_design,
-#      which stops that package resolving in any project that is not itself
+#   2. It requires `resolution: workspace` inside each design-kit package,
+#      which stops those packages resolving in any project that is not itself
 #      a workspace — exactly the portability the submodule exists for.
 #
 # Every melos since 3.0.0 needs `melos` in the root dev_dependencies, so that
