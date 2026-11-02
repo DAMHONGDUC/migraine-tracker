@@ -66,5 +66,5 @@ A lapsed subscriber cannot open previous exports through the app, but the files
 remain on-device and deleting the account still deletes them. Free data-access
 requests remain available through the support route in the privacy policy.
 
-Read [`rules/DECISIONS.md`](rules/DECISIONS.md) before moving the free/Premium
+Read [`rules/DECISIONS.md`](DECISIONS.md) before moving the free/Premium
 boundary.

@@ -399,7 +399,7 @@ first, check the corner at full size, then run `make app-icon`.
   so a missing original fails at the start rather than halfway.
 - **The launch icons are rounded here and nowhere else.** A storyboard image
   view cannot clip, so the mask has to be in the alpha —
-  `docs/setup/APP_ICON.md` has the reasoning and the per-file commands.
+  `docs/guides/APP_ICON.md` has the reasoning and the per-file commands.
 
 ## Firebase
 
@@ -428,7 +428,7 @@ optional `ONLY=rules` or `ONLY=functions` to do half of it:
   still be the SAME project, so `make deploy-dev` can be a production deploy
   under another name — the script prints the id and warns when the two aliases
   match, which is what makes a wrong destination visible. Splitting the projects
-  is `docs/setup/FIREBASE_PROJECT.md`; the warning disappears once the aliases
+  is `docs/guides/FIREBASE_PROJECT.md`; the warning disappears once the aliases
   differ.
 - **Both `npm run build` and `npm test` are optional** (`has_npm_script` in
   `flutter/lib/common.sh`, which asks `npm pkg get`). These scripts are shared with

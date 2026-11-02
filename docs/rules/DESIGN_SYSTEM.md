@@ -52,7 +52,7 @@ import 'package:system_design/index.dart';
 
 ## Redesign mockups are reference, not authority — owner's rule
 
-`docs/archive/UI_SPEC.md` briefs a redesign whose mockups come from an AI design
+`docs/plans/UI_SPEC.md` briefs a redesign whose mockups come from an AI design
 tool (Stitch). **They are visual direction only.** Where a mockup and these rules
 disagree, the rules win silently — build what the rules say and tell the owner
 what was overridden.

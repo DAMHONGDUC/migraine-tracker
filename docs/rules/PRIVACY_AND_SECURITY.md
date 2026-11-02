@@ -28,7 +28,7 @@ Every feature except sync and alerts must work without an account.
   the call throws `admin-restricted-operation`, the guard swallows it, and
   weather is silently dead on every fresh install.
 - **An account is NOT required to buy premium** (App Store 5.1.1(v), and
-  `docs/PREMIUM_RULES.md`): the purchase sits on RevenueCat's anonymous id, and
+  `docs/rules/PREMIUM_RULES.md`): the purchase sits on RevenueCat's anonymous id, and
   `PurchaseIdentity` moves it onto the account at the first sign-in — binding
   only when `isSignedIn`, because an anonymous uid has nothing durable to carry
   it. **Premium is required for alerts**, though. Registration refuses a
@@ -273,7 +273,7 @@ size.**
 
 ## 17. The privacy policy is two files saying one thing
 
-`docs/privacy/PRIVACY_POLICY.md` is the readable source, `docs/privacy/privacy.json`
+`docs/store/PRIVACY_POLICY.md` is the readable source, `docs/store/privacy.json`
 is what the published site renders. A change that moves data updates both in
 the same change, effective/last-updated dates included.
 
