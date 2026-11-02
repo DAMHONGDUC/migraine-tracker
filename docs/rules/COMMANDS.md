@@ -7,7 +7,7 @@ running, building, seeding or deploying anything.
 
 | Target | Script |
 |---|---|
-| `pull` / `push [DRY_RUN=1]` | `common/pull_latest.sh` / `common/push_current.sh` — outside `flutter/`, shared by every platform |
+| `pull-all` / `push-all [DRY_RUN=1]` | `common/pull_latest.sh` / `common/push_current.sh` — outside `flutter/`, shared by every platform |
 | `set-up` / `deep-set-up` | `set_up.sh` / `set_up.sh --deep` |
 | `gen` / `analyze` | `generate_code.sh` / `analyze_code.sh` |
 | `test TEST=<path>` | `run_tests.sh <path>` |
@@ -59,7 +59,7 @@ packages on the first build.
   does not do this by itself — plain `actions/checkout` still takes the pinned
   gitlink, and only `--remote` reads that line.
 
-### `make pull`
+### `make pull-all`
 
 Brings the app and every submodule (nested ones too) to the head of its main
 branch, fast-forward only. It never commits and never pushes; one line per repo,
@@ -81,7 +81,7 @@ branch, fast-forward only. It never commits and never pushes; one line per repo,
 - **A moved submodule shows as modified in the app** — commit that gitlink
   deliberately, as with `set-up`.
 
-### `make push`
+### `make push-all`
 
 Pushes every submodule, nested ones too, then the app, each on the branch it
 has checked out, to `origin`. **The owner's command: a session never runs it**
@@ -93,7 +93,7 @@ has checked out, to `origin`. **The owner's command: a session never runs it**
 | ahead of `origin` on its branch | pushes it: `main ae7991e → 169e788 (1 commit(s))` |
 | on a branch `origin` does not have | creates it there and sets the upstream: `feature/x new on origin at f995f9a` |
 | level with or behind `origin` | nothing to push: `main 561955b, already on origin` |
-| missing commits `origin` has | refuses — `make pull` or rebase first; never forced |
+| missing commits `origin` has | refuses — `make pull-all` or rebase first; never forced |
 | a detached submodule | fine when `origin` already holds the commit, refused otherwise |
 | recording a submodule commit no branch on `origin` holds | refused by git's own `--recurse-submodules=check` |
 
