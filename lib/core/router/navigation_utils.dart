@@ -26,7 +26,7 @@ final class NavigationUtils {
   /// The 3-tap log flow, with the one thing that must happen before it.
   ///
   /// There is no gate here: logging an attack is never refused
-  /// (`docs/PREMIUM_RULES.md`). The reset stays — a flow reopened on the last
+  /// (`docs/rules/PREMIUM_RULES.md`). The reset stays — a flow reopened on the last
   /// attack's answers would record them again.
   static Future<void> toLog(BuildContext context, WidgetRef ref) async {
     ref.read(logControllerProvider.notifier).reset();

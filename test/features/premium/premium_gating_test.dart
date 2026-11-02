@@ -97,7 +97,7 @@ void main() {
     await finishTest(tester);
   });
 
-  // Everything but alerts and export is free (`docs/PREMIUM_RULES.md`).
+  // Everything but alerts and export is free (`docs/rules/PREMIUM_RULES.md`).
   group('free user', () {
     testWidgets('sees the correlation, the verdict and the history chart', (
       tester,

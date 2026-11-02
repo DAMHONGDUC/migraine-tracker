@@ -12,7 +12,7 @@ import 'package:migraine_tracker/features/settings/providers.dart';
 import '../../helpers/pump_app.dart';
 
 /// The whole history is free: an attack from months ago reads and opens like
-/// yesterday's (`docs/PREMIUM_RULES.md`). There was a 90-day window here.
+/// yesterday's (`docs/rules/PREMIUM_RULES.md`). There was a 90-day window here.
 void main() {
   /// One recent attack and one from four months ago.
   Future<void> seed(PumpedApp app) async {

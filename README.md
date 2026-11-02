@@ -7,11 +7,11 @@ App Store: [https://apps.apple.com/us/app/baroease-migraine-tracker/id6797143362
 
 | Document | Use it for |
 |---|---|
-| [`PLAN.md`](PLAN.md) | Product scope and architecture |
+| [`docs/plans/PLAN.md`](docs/plans/PLAN.md) | Product scope and architecture |
 | [`AGENTS.md`](AGENTS.md) | Repository rules and document routing |
 | [`docs/README.md`](docs/README.md) | Documentation index |
-| [`docs/DONE_WORK.md`](docs/DONE_WORK.md) | What is built |
-| [`docs/REMAINING_WORK.md`](docs/REMAINING_WORK.md) | What still blocks release |
+| [`docs/status/DONE_WORK.md`](docs/status/DONE_WORK.md) | What is built |
+| [`docs/status/REMAINING_WORK.md`](docs/status/REMAINING_WORK.md) | What still blocks release |
 
 ## Requirements
 
@@ -232,7 +232,7 @@ Two things sit outside the chain: an address on `app_config/current`'s
 the owner's own), and no account is ever required to buy, restore or use
 premium (App Store 5.1.1(v)).
 
-Numbers and gates: [`docs/PREMIUM_RULES.md`](docs/PREMIUM_RULES.md). Surface
+Numbers and gates: [`docs/rules/PREMIUM_RULES.md`](docs/rules/PREMIUM_RULES.md). Surface
 behavior: [`lib/features/premium/CLAUDE.md`](lib/features/premium/CLAUDE.md).
 
 ## The pressure alert cron

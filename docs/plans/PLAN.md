@@ -25,7 +25,7 @@ launch.
 | Premium lifetime | One-time purchase | Same access |
 
 There are no ads. RevenueCat manages the subscriptions and the lifetime purchase.
-[`docs/PREMIUM_RULES.md`](docs/PREMIUM_RULES.md) is the authority for every
+[`docs/rules/PREMIUM_RULES.md`](../rules/PREMIUM_RULES.md) is the authority for every
 price, limit and gate.
 
 ## MVP status
@@ -49,7 +49,7 @@ All planned v1.0 app features are implemented.
 | Localization | Seven complete locales |
 
 Release blockers are tracked only in
-[`docs/REMAINING_WORK.md`](docs/REMAINING_WORK.md).
+[`docs/status/REMAINING_WORK.md`](../status/REMAINING_WORK.md).
 
 ## Out of scope
 
@@ -61,7 +61,7 @@ Release blockers are tracked only in
 
 Work queued behind v1.0 — daily logging, cycle, trigger/protector maps, a
 rule-based risk score and richer pressure warnings — lives in
-[`docs/ROADMAP.md`](docs/ROADMAP.md). The risk score there is deterministic
+[`docs/plans/ROADMAP.md`](ROADMAP.md). The risk score there is deterministic
 weights the user can read, which is why it is not the row above.
 
 ## Architecture

@@ -23,7 +23,7 @@ state before acting because this list includes consoles and legal work.
 | 14 | Complete the French ANSSI declaration or remove France | Legal | French distribution is non-compliant |
 | 15 | Have a lawyer review the privacy policy | Legal | Policy remains unverified |
 | 16 | Test HealthKit, push and the widget on a real device | iPhone | Native behavior is unverified |
-| 17 | Add the real App Store ID to `docs/privacy/privacy.json` | Repo | Published store link is missing |
+| 17 | Add the real App Store ID to `docs/store/privacy.json` | Repo | Published store link is missing |
 | 18 | Confirm both Siri phrases appear in the Shortcuts app | iPhone | The App Intents are unverified off-device |
 | 19 | Deploy the functions after the onset-alert change | Firebase | Users get one push per front instead of two |
 
@@ -58,9 +58,9 @@ Never place secret values in documentation or command output.
 
 | Task | Document |
 |---|---|
-| Release flow | [`release/PIPELINE.md`](release/PIPELINE.md) |
-| Credentials | [`release/CREDENTIALS.md`](release/CREDENTIALS.md) |
-| Pending setup details | [`rules/PENDING_SETUP.md`](rules/PENDING_SETUP.md) |
-| Store copy and EULA | [`release/APP_STORE_LISTING.md`](release/APP_STORE_LISTING.md) |
-| Encryption decision | [`release/APP_ENCRYPTION.md`](release/APP_ENCRYPTION.md) |
-| Privacy source | [`privacy/PRIVACY_POLICY.md`](privacy/PRIVACY_POLICY.md) |
+| Release flow | [`release/PIPELINE.md`](../release/PIPELINE.md) |
+| Credentials | [`release/CREDENTIALS.md`](../release/CREDENTIALS.md) |
+| Pending setup details | [`rules/PENDING_SETUP.md`](../rules/PENDING_SETUP.md) |
+| Store copy and EULA | [`release/APP_STORE_LISTING.md`](../store/APP_STORE_LISTING.md) |
+| Encryption decision | [`release/APP_ENCRYPTION.md`](../release/APP_ENCRYPTION.md) |
+| Privacy source | [`privacy/PRIVACY_POLICY.md`](../store/PRIVACY_POLICY.md) |

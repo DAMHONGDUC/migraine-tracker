@@ -83,7 +83,7 @@ class ExportController {
           .read(exportSharerProvider)
           .shareFile(path: record.filePath, mimeType: record.kind.mimeType);
 
-      // The doctor report leaving the app is the value moment `PLAN.md` names — and the share sheet closing is the pause to ask in.
+      // The doctor report leaving the app is the value moment `docs/plans/PLAN.md` names — and the share sheet closing is the pause to ask in.
       if (record.kind == ExportKind.pdf) {
         unawaited(
           _ref.read(reviewPromptControllerProvider).onDoctorReportShared(),

@@ -5,7 +5,7 @@ Snapshot: 2026-08-30. This file records what exists; release blockers belong in
 
 ## Product
 
-The v1.0 MVP is implemented. `PLAN.md` is the scope authority.
+The v1.0 MVP is implemented. `docs/plans/PLAN.md` is the scope authority.
 
 | Feature | Implemented |
 |---|---|

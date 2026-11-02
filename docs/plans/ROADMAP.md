@@ -1,9 +1,9 @@
 # Roadmap after v1.0
 
 Authority for what BaroEase builds next and in which order. Written 2026-09-02
-from a market survey of the apps listed below. `PLAN.md` stays the authority for
+from a market survey of the apps listed below. `docs/plans/PLAN.md` stays the authority for
 current scope; this file is the queue behind it. Nothing here is built yet — a
-gate only becomes real in [`PREMIUM_RULES.md`](PREMIUM_RULES.md) the release it
+gate only becomes real in [`PREMIUM_RULES.md`](../rules/PREMIUM_RULES.md) the release it
 ships.
 
 ## What the market has that v1.0 does not
@@ -79,7 +79,7 @@ push reaches anyone, and a real device to confirm both Siri phrases list.
 | Concern | Direction |
 |---|---|
 | Data model | New feature `lib/features/daily_log/`, Drift table `daily_logs` keyed by local date; one schema bump covers items 1, 2 and 4 |
-| Cycle storage | On-device only, never in a sync payload — see [`rules/DECISIONS.md`](rules/DECISIONS.md) |
+| Cycle storage | On-device only, never in a sync payload — see [`rules/DECISIONS.md`](../rules/DECISIONS.md) |
 | Check-in cost | Must stay under 30 seconds and one screen, or the control group never fills |
 | Reminder | Reuse the notification feature; the check-in nudge counts against the free reminder limit only if the user sets a custom time |
 | Live Activity | Extends the existing App Group bridge in `home_widget`; no second bridge |
@@ -121,18 +121,18 @@ labelled, never silently weighted differently.
 |---:|---|---|---|
 | 9 | 5–7 day pressure outlook and 5-day pressure history | Premium | Recost the WeatherKit quota before starting; the cron already groups by geohash |
 | 10 | A notification 1h before the drop starts, plus an optional morning outlook | Premium | Keeps the existing dedupe: 3 alerts a day, 8h apart, silent at local night |
-| 11 | Humidity, temperature swing and storm fronts as additional triggers | Premium | `PLAN.md` already lists more weather triggers as later work |
+| 11 | Humidity, temperature swing and storm fronts as additional triggers | Premium | `docs/plans/PLAN.md` already lists more weather triggers as later work |
 | 12 | Siri / App Intents "log a migraine", and a widget nudge for the daily check-in | Free | Cheapest lever on daily-log completion |
 
 ## Decisions already taken
 
 | Decision | Where it is recorded |
 |---|---|
-| The risk score is rule-based, never ML | [`rules/DECISIONS.md`](rules/DECISIONS.md) |
-| MIDAS ships, HIT-6 does not | [`rules/DECISIONS.md`](rules/DECISIONS.md) |
-| Check-in factors are a fixed list, not user-defined | [`rules/DECISIONS.md`](rules/DECISIONS.md) |
-| Cycle data never leaves the device | [`rules/DECISIONS.md`](rules/DECISIONS.md) |
-| Community, coaching plans and an Apple Watch app stay out | [`../PLAN.md`](../PLAN.md) |
+| The risk score is rule-based, never ML | [`rules/DECISIONS.md`](../rules/DECISIONS.md) |
+| MIDAS ships, HIT-6 does not | [`rules/DECISIONS.md`](../rules/DECISIONS.md) |
+| Check-in factors are a fixed list, not user-defined | [`rules/DECISIONS.md`](../rules/DECISIONS.md) |
+| Cycle data never leaves the device | [`rules/DECISIONS.md`](../rules/DECISIONS.md) |
+| Community, coaching plans and an Apple Watch app stay out | [`PLAN.md`](PLAN.md) |
 
 ## Owner actions before Wave 1 starts
 

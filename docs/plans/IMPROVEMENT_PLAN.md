@@ -4,7 +4,7 @@ From a 30-day simulated run of the app as a chronic sufferer — 11 attacks a
 month, Hanoi, free plan, signed out. Ordered by what makes the app *wrong*
 first, what makes it *lose the user* second.
 
-Every item is one before/after table of behaviour. `docs/REMAINING_WORK.md`
+Every item is one before/after table of behaviour. `docs/status/REMAINING_WORK.md`
 stays the release checklist; this file is product work.
 
 | Status | Meaning |
@@ -171,7 +171,7 @@ layer, never in a provider.**
 | What the analyses read | Every attack | Every attack, unchanged — each paid one is already behind `PremiumGate` |
 | Shapes that do not work | — | A sync provider over the table's stream, and the Insights chain reading the windowed stream: both throw "setState during build" mid-transition |
 
-`docs/PREMIUM_RULES.md` carries the table of what reads what, so the next
+`docs/rules/PREMIUM_RULES.md` carries the table of what reads what, so the next
 refactor does not walk back into it.
 
 ## Wave 3 — polish
@@ -205,7 +205,7 @@ say, and that rule was set deliberately.
 
 | What | Before | After |
 |---|---|---|
-| HealthKit, push, the widget, Live Activity, both Siri phrases | Never verified on hardware | Still never — it needs an iPhone, per `docs/REMAINING_WORK.md` item 16 |
+| HealthKit, push, the widget, Live Activity, both Siri phrases | Never verified on hardware | Still never — it needs an iPhone, per `docs/status/REMAINING_WORK.md` item 16 |
 
 ## Rules these changes rewrite
 
@@ -213,7 +213,7 @@ say, and that rule was set deliberately.
 |---|---|---|
 | Hard rule 5, the 3-tap flow | `lib/features/attacks/CLAUDE.md` | Two steps commit on pick; Save now is an exit, not a step |
 | The fixed factor list | `lib/features/daily_log/CLAUDE.md`, `docs/rules/DECISIONS.md` | An attack's triggers and a day's factors share one vocabulary |
-| Free limits | `docs/PREMIUM_RULES.md`, `PremiumLimitConstant` | The attack cap becomes a history window |
+| Free limits | `docs/rules/PREMIUM_RULES.md`, `PremiumLimitConstant` | The attack cap becomes a history window |
 
 ## Thresholds nothing here moves
 

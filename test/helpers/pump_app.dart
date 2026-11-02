@@ -433,7 +433,7 @@ class FakePurchaseRepository implements PurchaseRepository {
 
   final FakePremiumRepository _premium;
 
-  /// The three plans PLAN.md sells, at their listed prices.
+  /// The three plans docs/plans/PLAN.md sells, at their listed prices.
   List<PremiumOffer> availableOffers = const <PremiumOffer>[
     PremiumOffer(
       id: r'$rc_monthly',

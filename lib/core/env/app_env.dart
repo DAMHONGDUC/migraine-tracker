@@ -2,7 +2,7 @@ import 'dart:io';
 
 /// Single source of truth for compile-time configuration injected via `--dart-define-from-file=env/<flavor>.json`.
 ///
-/// A key owned by one platform ends in `_IOS` or `_ANDROID` and its getter ends in the same word; no suffix means both platforms read it (`docs/setup/ENV_AND_FASTLANE_SPEC.md` A3).
+/// A key owned by one platform ends in `_IOS` or `_ANDROID` and its getter ends in the same word; no suffix means both platforms read it (`docs/guides/ENV_AND_FASTLANE_SPEC.md` A3).
 final class AppEnv {
   const AppEnv._();
 

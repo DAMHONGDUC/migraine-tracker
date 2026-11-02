@@ -5,7 +5,7 @@ import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart'
 
 import '../../helpers/pump_app.dart';
 
-/// The dashboard's risk card is free (`docs/PREMIUM_RULES.md`): every user gets
+/// The dashboard's risk card is free (`docs/rules/PREMIUM_RULES.md`): every user gets
 /// it, told what it is waiting for until there is history to score.
 void main() {
   Attack attackDaysAgo(int daysAgo) {

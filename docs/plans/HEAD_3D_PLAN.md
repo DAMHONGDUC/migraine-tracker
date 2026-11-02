@@ -1,12 +1,12 @@
 # The head diagram as one 3D block
 
-> Historical implementation notes. The current head uses the licensed Lee Perry-Smith scan and supports pitch/zoom; see [editable model](../tool/head_model/README.md) and [interaction upgrade plan](plans/2026-09-17-gitnexus-plan-head-model-interaction-upgrade.md). The original procedural face was rejected; Python now crops and partitions a preserved source scan.
+> Historical implementation notes. The current head uses the licensed Lee Perry-Smith scan and supports pitch/zoom; see [editable model](../../tool/head_model/README.md) and [interaction upgrade plan](2026-09-17-gitnexus-plan-head-model-interaction-upgrade.md). The original procedural face was rejected; Python now crops and partitions a preserved source scan.
 
 The location step's head stops being two flat SVG views and becomes a single
 model the user turns. Owner's call, 2026-09-17.
 
 The rules that already govern this widget live in
-[`lib/features/attacks/CLAUDE.md`](../lib/features/attacks/CLAUDE.md) ("The head
+[`lib/features/attacks/CLAUDE.md`](../../lib/features/attacks/CLAUDE.md) ("The head
 diagram"). Nothing here replaces them — every one of them still has to hold
 after the change, and the sections below say how.
 
@@ -37,7 +37,7 @@ kept in step with a drawing.
 
 **336 likes is below this repo's ">1k likes" bar, deliberately.** No 3D package
 clears it, and a WebView in the log flow is worse than an exception. This goes in
-[`rules/DECISIONS.md`](rules/DECISIONS.md) the way `flutter_file_dialog`'s
+[`rules/DECISIONS.md`](../rules/DECISIONS.md) the way `flutter_file_dialog`'s
 exception did.
 
 ## The API this rests on — all of it verified

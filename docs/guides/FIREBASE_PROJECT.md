@@ -83,7 +83,7 @@ optional**: it is the default session every install runs on, and without it
   new `GoogleService-Info.plist`, so download that file again after enabling it,
   and put the matching URL scheme in `env_assets/prod-Info.plist` — not in
   `ios/Runner/Info.plist`, which the next `prepare-env` run overwrites
-  (`docs/setup/AUTH_SETUP.md`).
+  (`docs/guides/AUTH_SETUP.md`).
 - **Apple** — same Services ID, Team ID, Key ID and `.p8` as the dev project.
 
 ### 5. Billing
@@ -115,7 +115,7 @@ public read-only `app_config/current`.
 **The three WeatherKit identifiers are per project.** The CLI reads
 `functions/.env` by default and `functions/.env.<project-id>` for a specific
 one, so give the new project its own file with the same three keys
-(`docs/setup/WEATHERKIT_SETUP.md` lists them). An empty value fails the deploy
+(`docs/guides/WEATHERKIT_SETUP.md` lists them). An empty value fails the deploy
 rather than prompting, because the deploy runs non-interactively.
 
 **The two secrets are per project too**, and Secret Manager is per project:

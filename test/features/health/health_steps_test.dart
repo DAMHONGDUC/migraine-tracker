@@ -55,7 +55,7 @@ void main() {
       );
       await openActivityInsight(tester);
 
-      // The analysis is free (`docs/PREMIUM_RULES.md`): the card is built, not pitched.
+      // The analysis is free (`docs/rules/PREMIUM_RULES.md`): the card is built, not pitched.
       expect(find.text('Steps & attacks'), findsOneWidget);
       // Skip read-count assertions because each free surface reads independently.
       expect(app.health.stepReads, greaterThan(0));

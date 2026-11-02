@@ -27,7 +27,7 @@ final alertRegistrationRepositoryProvider =
       ),
     );
 
-/// Whether this user may turn pressure alerts on: premium, or every account while the owner has opened them in `app_config` (`docs/PREMIUM_RULES.md`). Whether they are signed in is a separate question the alert flow asks.
+/// Whether this user may turn pressure alerts on: premium, or every account while the owner has opened them in `app_config` (`docs/rules/PREMIUM_RULES.md`). Whether they are signed in is a separate question the alert flow asks.
 final hasAlertAccessProvider = Provider<bool>(
   (ref) =>
       ref.watch(hasPremiumProvider) || ref.watch(freePressureAlertsProvider),
