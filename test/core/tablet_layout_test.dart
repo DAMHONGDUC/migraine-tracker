@@ -570,7 +570,13 @@ void main() {
 
         await expectNoOverflow(tester, 'Dashboard, collapsed ($name)');
 
+        // A collapsed panel is not built, so History is reached the user's
+        // way: open the panel, pick the tab, close it again.
+        await tester.tap(toggle());
+        await settleFrames(tester);
         await openHistory(tester);
+        await tester.tap(toggle());
+        await settleFrames(tester);
         await expectNoOverflow(tester, 'History list, collapsed ($name)');
 
         await finishTest(tester);

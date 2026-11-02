@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 
@@ -23,7 +24,12 @@ void main() {
     // Choice is persisted for the next launch.
     expect(app.prefs.getString('app_locale'), 'vi');
 
-    // The log flow is Vietnamese too — open it from the dashboard.
+    // The log flow is Vietnamese too — open it from the dashboard. Reaching
+    // the Language row scrolled Settings down, which slides the floating nav
+    // bar away; scrolling back up brings it back, as it does for a user.
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, 1000));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.tap(find.byIcon(AppIconConstant.home));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
