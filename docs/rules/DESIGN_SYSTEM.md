@@ -7,18 +7,21 @@ rule.
 
 ## The package
 
-There is exactly one import, and it is the index:
+**Depend on `system_design_core` and `system_design_v2`, never on the umbrella
+`system_design`** — the umbrella re-exports every generation and resolves v5's
+video plugins into an app that renders none of them. Two imports:
 
 ```dart
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';       // widgets, tokens and core
+import 'package:system_design_core/common.dart'; // pure Dart, from domain/
 ```
 
-- Every widget is `Sd<Name>V2` in its own folder `v2/sd_<name>_v2/`. Adding one
-  is a folder, a file and one `export` line in `v2/index.dart` — read
-  `WIDGET_RULES.md` first.
-- `v2` is the widget generation and everything with a look lives there. The
-  package's `core/` holds only what belongs to no generation: today
-  `SdSpacingConstant`, which is why it alone carries no `V2` suffix.
+- Every widget is `Sd<Name>V2` in its own folder
+  `packages/system_design_v2/lib/sd_<name>_v2/`. Adding one is a folder, a file
+  and one `export` line in `v2.dart` — read `WIDGET_RULES.md` first.
+- `v2` is the widget generation and everything with a look lives there.
+  `system_design_core` holds only what belongs to no generation (`SdSpacingConstant`,
+  `SdLogger`, `SdId`, `SdNavPanelScope`), which is why those carry no `V2` suffix.
 - **This app renders `v2`, and the package's `README.md` says so.** One
   generation belongs to one product: a project joining the design system takes
   the highest generation there and builds `n+1` (`v3` is Seller OS, so the next
