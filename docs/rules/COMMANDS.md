@@ -7,7 +7,7 @@ running, building, seeding or deploying anything.
 
 | Target | Script |
 |---|---|
-| `pull` | `common/pull_latest.sh` — the one script outside `flutter/`, shared by every platform |
+| `pull` / `push [DRY_RUN=1]` | `common/pull_latest.sh` / `common/push_current.sh` — outside `flutter/`, shared by every platform |
 | `set-up` / `deep-set-up` | `set_up.sh` / `set_up.sh --deep` |
 | `gen` / `analyze` | `generate_code.sh` / `analyze_code.sh` |
 | `test TEST=<path>` | `run_tests.sh <path>` |
@@ -80,6 +80,28 @@ branch, fast-forward only. It never commits and never pushes; one line per repo,
   the command exits 1 naming how many were left as they were.
 - **A moved submodule shows as modified in the app** — commit that gitlink
   deliberately, as with `set-up`.
+
+### `make push`
+
+Pushes every submodule, nested ones too, then the app, each on the branch it
+has checked out, to `origin`. **The owner's command: a session never runs it**
+(CLAUDE.md, "commit freely; never push"). It never forces and never commits;
+`DRY_RUN=1` sends nothing.
+
+| Repo is | It does |
+|---|---|
+| ahead of `origin` on its branch | pushes it: `main ae7991e → 169e788 (1 commit(s))` |
+| on a branch `origin` does not have | creates it there and sets the upstream: `feature/x new on origin at f995f9a` |
+| level with or behind `origin` | nothing to push: `main 561955b, already on origin` |
+| missing commits `origin` has | refuses — `make pull` or rebase first; never forced |
+| a detached submodule | fine when `origin` already holds the commit, refused otherwise |
+| recording a submodule commit no branch on `origin` holds | refused by git's own `--recurse-submodules=check` |
+
+- **Submodules first, deepest first**, so the app never records a gitlink
+  `origin` cannot resolve.
+- **Uncommitted files are named, not pushed**: a dirty `ios/Runner/Info.plist`
+  shows as `1 uncommitted file(s) not pushed` on the app's line.
+- **One refusal does not stop the rest**; the command exits 1 at the end.
 
 ### `make env-dev` / `env-prod`
 
