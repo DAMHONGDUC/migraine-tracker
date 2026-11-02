@@ -1,4 +1,4 @@
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 import 'secure_store.dart';
 

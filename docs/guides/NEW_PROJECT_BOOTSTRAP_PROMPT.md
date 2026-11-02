@@ -118,17 +118,21 @@ The design system is a separate repo, shared across my products, checked out as 
 git submodule add -b main https://github.com/DAMHONGDUC/flutter-system-design-kit packages/flutter-system-design-kit
 ```
 
-Wire it in as a path dependency. There is exactly one import for the whole package,
-and it is the index: `import 'package:system_design/index.dart';`
+Wire it in as two path dependencies — `system_design_core` and the product's
+own generation package — **never the umbrella `system_design`**, which resolves
+every generation's dependencies (v5's video plugins once forced CocoaPods into a v3
+app). Imports: `package:system_design_v<N>/v<N>.dart` for widgets and tokens,
+`package:system_design_core/common.dart` from `domain/`.
 
 **This product does not render an existing generation — it gets its own.**
 
-1. List `packages/flutter-system-design-kit/lib/` and find the highest `v<N>/` folder. As of
-   today that is `v3`, so the new one is `v4` — but check, don't assume.
-2. **Copy `v2/` into `v<N+1>/`** (v2 is the generation this rulebook was written
-   against), rename every symbol's suffix, give it its own `index.dart`, and export
-   that index from `lib/index.dart` alongside the existing generations.
-3. Every widget is `Sd<Name>V<N+1>` in its own folder `v<N+1>/sd_<name>_v<N+1>/`.
+1. List `packages/flutter-system-design-kit/packages/` and find the highest
+   `system_design_v<N>`. As of today that is `v5`, so the new one is `v6` — but
+   check, don't assume.
+2. **Copy `system_design_v2/` into `system_design_v<N+1>/`** (v2 is the generation
+   this rulebook was written against), rename every symbol's suffix and the entry
+   point to `v<N+1>.dart`, and export it from the umbrella's `lib/index.dart`.
+3. Every widget is `Sd<Name>V<N+1>` in its own folder `lib/sd_<name>_v<N+1>/`.
    Adding one is a folder, a file, and one `export` line — nothing else.
 4. **Read `packages/flutter-system-design-kit/WIDGET_RULES.md` first.** It is the authority on
    what may go in and how it must be written; sections 5–6 here only summarise it.

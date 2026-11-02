@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 import '../../../core/constants/log_tag_constant.dart';
 import '../domain/services/attack_share_file_store.dart';

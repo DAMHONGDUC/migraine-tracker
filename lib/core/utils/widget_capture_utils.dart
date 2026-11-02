@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 /// Turns a widget the user is looking at into a PNG.
 final class WidgetCaptureUtils {

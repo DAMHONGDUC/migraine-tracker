@@ -11,7 +11,7 @@ import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboa
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/month_days_card.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/risk_score_card.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/week_summary_card.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../helpers/pump_app.dart';
 

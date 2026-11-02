@@ -20,7 +20,7 @@ void main() {
     expect(
       offenders,
       isEmpty,
-      reason: 'use SdId from package:system_design/common.dart',
+      reason: 'use SdId from package:system_design_core/common.dart',
     );
   });
 }

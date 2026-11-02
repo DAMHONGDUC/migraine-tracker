@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/exertion_level.dart';

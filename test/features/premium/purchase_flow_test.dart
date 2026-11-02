@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/premium/domain/enums/purchase_error.dart';
 import 'package:migraine_tracker/features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../helpers/pump_app.dart';
 import 'premium_gating_test.dart' show openPaywallFromAlertRow;

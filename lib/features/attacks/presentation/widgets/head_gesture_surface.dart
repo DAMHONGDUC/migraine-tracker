@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/enums/head_rotation_speed.dart';

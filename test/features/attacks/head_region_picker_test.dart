@@ -15,7 +15,7 @@ import 'package:migraine_tracker/features/attacks/presentation/widgets/head_scen
 import 'package:migraine_tracker/features/attacks/presentation/widgets/location_picker_sheet.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/location_step.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../helpers/settle_frames.dart';
 

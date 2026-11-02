@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../domain/enums/head_region.dart';
 import 'head_diagram.dart';

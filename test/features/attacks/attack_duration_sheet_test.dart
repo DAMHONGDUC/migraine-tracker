@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_theme.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/attack_duration_sheet.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../helpers/settle_frames.dart';
 

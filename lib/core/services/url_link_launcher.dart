@@ -1,4 +1,4 @@
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants/log_tag_constant.dart';

@@ -1,4 +1,4 @@
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../alerts/domain/repositories/alert_registration_repository.dart';

@@ -16,7 +16,7 @@ import 'package:migraine_tracker/features/insights/presentation/widgets/pressure
 import 'package:migraine_tracker/features/insights/presentation/widgets/trigger_verdict_body.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../helpers/pump_app.dart';
 

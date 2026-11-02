@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../../core/constants/calendar_constant.dart';

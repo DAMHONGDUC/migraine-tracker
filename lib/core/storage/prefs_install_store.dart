@@ -1,5 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 /// `shared_preferences` as the store iOS deletes with the app — where
 /// [SdFreshInstall] keeps its stamp, and the only thing this app writes there.

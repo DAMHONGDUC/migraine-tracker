@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_theme.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 /// The app's one spacing rule, pinned on a notched device: [topGap] below the bar, [bottomGap] above the home indicator, [horizontal] either side.
 void main() {

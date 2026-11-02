@@ -64,11 +64,12 @@ dependencies:
   sign_in_with_apple: ^8.1.0
   simple_icons: ^16.23.0
   step_progress: ^2.7.1
-  # The shared design system. Its own git repo, checked out here as a
-  # submodule — tokens, theme and string-free widgets live there, not in
-  # lib/core.
-  system_design:
-    path: packages/flutter-system-design-kit
+  # The shared design system — core and the v2 generation only: each generation
+  # is its own package, so this app resolves no other generation's dependencies.
+  system_design_core:
+    path: packages/flutter-system-design-kit/packages/system_design_core
+  system_design_v2:
+    path: packages/flutter-system-design-kit/packages/system_design_v2
   table_calendar: ^3.2.0
   timezone: ^0.11.1
   url_launcher: ^6.3.2

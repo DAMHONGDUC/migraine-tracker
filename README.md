@@ -116,7 +116,7 @@ See [`docs/release/PIPELINE.md`](docs/release/PIPELINE.md) for the flow and
 | `lib/features/` | Feature-based app code |
 | `lib/l10n/` | Seven ARB localization files |
 | `functions/` | Firebase Cloud Functions |
-| `packages/flutter-system-design-kit/` | Design-system git submodule (Dart package `system_design`) |
+| `packages/flutter-system-design-kit/` | Design-system git submodule; the app depends on its `system_design_core` and `system_design_v2` packages |
 | `packages/script-tools/` | Shared scripts submodule; `flutter/` is what `make` runs |
 | `test/features/` | Tests mirroring app features |
 
@@ -151,7 +151,7 @@ The iOS and Android identifiers intentionally differ. Do not normalize them.
 
 iOS deletes the app's container when the app is deleted, but not its Keychain —
 and dev and prod share one bundle id, so either can be installed over the other.
-`SdFreshInstall` (`system_design`, `core/common/`) tells those launches apart
+`SdFreshInstall` (`system_design_core`, `core/common/`) tells those launches apart
 and takes the device back to a fresh install when it has to; the app supplies
 the two stores and the two vendor calls — `PrefsInstallStore`,
 `SecureDeviceStore` (`core/storage/`) and `AppFreshInstall` (`core/env/`).

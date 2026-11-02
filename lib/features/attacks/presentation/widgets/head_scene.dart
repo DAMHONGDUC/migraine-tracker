@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_scene/scene.dart';
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
 import '../../../../core/constants/log_tag_constant.dart';

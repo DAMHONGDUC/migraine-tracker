@@ -1,4 +1,4 @@
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 /// The size ladder every icon in the app is drawn at.
 ///

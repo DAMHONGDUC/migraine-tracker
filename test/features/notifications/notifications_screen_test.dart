@@ -10,7 +10,7 @@ import 'package:migraine_tracker/features/notifications/data/repositories/drift_
 import 'package:migraine_tracker/features/notifications/domain/entities/app_notification.dart';
 import 'package:migraine_tracker/features/notifications/domain/enums/notification_type.dart';
 import 'package:migraine_tracker/features/notifications/presentation/screens/notifications_screen/notifications_screen.dart';
-import 'package:system_design/index.dart';
+import 'package:system_design_v2/v2.dart';
 
 import '../../helpers/pump_app.dart';
 

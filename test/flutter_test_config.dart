@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:system_design/common.dart';
+import 'package:system_design_core/common.dart';
 
 /// Runs once per test file before its `main()`.
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
