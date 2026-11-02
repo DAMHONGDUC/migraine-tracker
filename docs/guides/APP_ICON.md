@@ -15,7 +15,7 @@ feature list; preserve dark negative space.
 | Recording and analysis | Small journal and trend line inside the neck |
 
 Use flat colors on dark charcoal, balanced margins, and no text or pure white.
-V1–V5 are retained for comparison. Market references for dominant-symbol
+Market references for dominant-symbol
 hierarchy: [Migraine Buddy](https://apps.apple.com/us/app/migraine-buddy-track-headache/id975074413)
 and [Bearable](https://bearable.app/). Keep BaroEase artwork original.
 
@@ -23,12 +23,6 @@ and [Bearable](https://bearable.app/). Keep BaroEase artwork original.
 
 | File | Role |
 |---|---|
-| `assets/images/app_icon_v1.png` | Approved V1 retained for comparison |
-| `assets/images/app_icon_v2.png` | Refined V2 artwork |
-| `assets/images/app_icon_v3.png` | V3 with a unified rounded pictogram style |
-| `assets/images/app_icon_v4.png` | Minimalist head and pain mark |
-| `assets/images/app_icon_v5.png` | V4 with the bolt centered horizontally |
-| `assets/images/app_icon_v6.png` | Secondary symbols integrated inside V5 |
 | `assets/images/app_icon.png` | **The one source.** Original artwork, 1024×1024, read directly by `pubspec.yaml` and by every step of the generator |
 | iOS `AppIcon.appiconset` | Generated launcher sizes; opaque RGB |
 | Android `mipmap-*` | Generated legacy launcher sizes |

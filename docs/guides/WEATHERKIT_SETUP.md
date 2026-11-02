@@ -106,7 +106,7 @@ never skip a cohort.
 ## Step 6 — Swap the call site
 
 - `functions/src/index.ts:23` — import from `./weather/weatherKit`
-- Delete `functions/src/weather/openMeteo.ts` and `test/openMeteo.test.ts`
+- Delete `openMeteo.ts` and its test — done, `weatherKit.ts` is the only provider
 - Port the tests to the new parser: malformed body, HTTP error, retry exhaustion.
   Same cases, so port rather than start over.
 
