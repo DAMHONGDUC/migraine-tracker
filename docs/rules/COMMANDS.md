@@ -7,6 +7,7 @@ running, building, seeding or deploying anything.
 
 | Target | Script |
 |---|---|
+| `pull` | `common/pull_latest.sh` — the one script outside `flutter/`, shared by every platform |
 | `set-up` / `deep-set-up` | `set_up.sh` / `set_up.sh --deep` |
 | `gen` / `analyze` | `generate_code.sh` / `analyze_code.sh` |
 | `test TEST=<path>` | `run_tests.sh <path>` |
@@ -57,6 +58,28 @@ packages on the first build.
   repo's CI with nothing here having changed. `branch = main` in `.gitmodules`
   does not do this by itself — plain `actions/checkout` still takes the pinned
   gitlink, and only `--remote` reads that line.
+
+### `make pull`
+
+Brings the app and every submodule (nested ones too) to the head of its main
+branch, fast-forward only. It never commits and never pushes; one line per repo,
+`<path>  <branch> <from> → <to>`.
+
+| Repo is | It does |
+|---|---|
+| on its main branch | fast-forwards it: `main cb67a84 → d00d123` |
+| on another branch | leaves the checkout, moves only the local `main` ref: `on chore/x; main 5d668da → 9f0c1e2, not switched` |
+| a detached submodule | checks out its branch, then fast-forwards — only when that branch already holds the detached commit |
+| ahead of `origin` | nothing to pull: `main ae7991e, already the latest, 1 ahead of origin` |
+| diverged from `origin` | refuses — merge or rebase by hand |
+| dirty | the app refuses only when the pull touches a changed file (a dirty `ios/Runner/Info.plist` does not block a pull that leaves it alone); a submodule refuses on any change |
+
+- **Main branch**: the app's is `origin`'s `main`, else `master`; a
+  submodule's is its `.gitmodules` `branch`, else `main`, else `master`.
+- **One refusal does not stop the rest**: every other repo still moves, then
+  the command exits 1 naming how many were left as they were.
+- **A moved submodule shows as modified in the app** — commit that gitlink
+  deliberately, as with `set-up`.
 
 ### `make env-dev` / `env-prod`
 
